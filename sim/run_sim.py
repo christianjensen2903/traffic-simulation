@@ -1,5 +1,6 @@
 from multiprocessing import Process, Queue
 from time import sleep, time
+import random
 
 from environment import load_and_run_simulation
 
@@ -7,8 +8,8 @@ from environment import load_and_run_simulation
 def run_game():
 
     test_duration_seconds = 600
-    random = True
-    configuration_file = "models/1/glue_configuration copy.yaml"
+    is_random = True
+    configuration_file = "models/1/glue_configuration.yaml"
     start_time = time()
 
     input_queue = Queue()
@@ -22,7 +23,7 @@ def run_game():
             configuration_file,
             start_time,
             test_duration_seconds,
-            random,
+            is_random,
             input_queue,
             output_queue,
             error_queue,
@@ -48,15 +49,21 @@ def run_game():
         # Insert your own logic here to parse the state and
         # select the next action to take
 
-        print(f"Vehicles: {state.vehicles}")
-        print(f"Signals: {state.signals}")
+        # print(f"Vehicles: {state.vehicles}")
+        # print(f"Signals: {state.signals}")
 
         signal_logic_errors = None
         prediction = {}
         prediction["signals"] = []
 
         # Update the desired phase of the traffic lights
-        next_signals = {}
+        next_signals = {signal.name: "red" for signal in state.signals}
+        # Pick a random signal and set it to green
+        random_signal = random.choice(state.signals)
+        print(f"Changing {random_signal.name} to green")
+        next_signals[random_signal.name] = "green"
+
+        # next_signals = {}
         current_tick = state.simulation_ticks
 
         for signal in prediction["signals"]:
@@ -66,7 +73,11 @@ def run_game():
         signal_logic_errors = input_queue.put(next_signals)
 
         if signal_logic_errors:
+            print(f"Signal logic errors: {signal_logic_errors}")
             errors.append(signal_logic_errors)
+
+        # Wait 12 seconds
+        sleep(20)
 
     # End of simulation, return the score
 
