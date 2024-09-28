@@ -194,7 +194,7 @@ for road in roads:
     xml += generate_edge_xml(
         edge_id=f"{opposite_direction.value}_2",
         from_node="intersection",
-        to_node=f"{opposite_direction.value}_0",
+        to_node=f"{opposite_direction.value}_3",
         shape=shape_2,
         road=Road(
             lanes=[LaneType.STRAIGHT],
@@ -248,7 +248,7 @@ for road in roads:
         )
     xml += "\n"
 
-xml += "\n".join(junction_strings)
+xml += "".join(junction_strings)
 
 incLanes: list[str] = []
 for road in roads:
@@ -256,9 +256,12 @@ for road in roads:
         incLanes.append(f"{road.direction.value}_1_{lane_number}")
 xml += f"""
     <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="{' '.join(incLanes)}" intLanes="{' '.join(intLanes)}" fringe="inner" shape="312.73,481.39 329.28,460.72 327.46,458.20 327.22,456.67 327.42,454.97 328.06,453.09 329.14,451.02 310.93,440.02 309.42,441.66 308.56,442.00 307.65,442.02 306.66,441.72 305.61,441.10 291.55,457.29 293.48,460.48 293.59,462.48 293.14,464.76 292.13,467.30 290.55,470.12 307.43,482.02 309.04,480.50 309.90,480.23 310.81,480.29 311.75,480.68"/>"""
+xml += "\n"
 
-xml += "\n".join(lane_connection_strings)
-xml += "\n".join(intersection_connection_strings)
+xml += "".join(lane_connection_strings)
+xml += "\n"
+xml += "".join(intersection_connection_strings)
+xml += "\n"
 
 xml += """
 </net>
