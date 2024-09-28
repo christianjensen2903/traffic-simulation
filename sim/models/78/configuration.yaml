@@ -1,0 +1,83 @@
+intersections:
+- allowed_green_signal_combinations:
+  - allowed: []
+    signal: S_LEFT
+  - allowed:
+    - W_STRAIGHT
+    - E_LEFT
+    signal: E_STRAIGHT
+  - allowed:
+    - E_STRAIGHT
+    signal: E_LEFT
+  - allowed:
+    - E_STRAIGHT
+    signal: W_STRAIGHT
+  amber_time: 3
+  connections:
+  - groups:
+    - S_left
+    index: 0
+    priority: true
+  - groups:
+    - S_left
+    index: 1
+    priority: true
+  - groups:
+    - E_straight
+    index: 2
+    priority: true
+  - groups:
+    - E_straight
+    index: 3
+    priority: true
+  - groups:
+    - E_left
+    index: 4
+    priority: true
+  - groups:
+    - W_straight
+    index: 5
+    priority: true
+  - groups:
+    - W_straight
+    index: 6
+    priority: true
+  - groups:
+    - W_straight
+    index: 7
+    priority: true
+  groups:
+  - S_left
+  - W_straight
+  - E_left
+  - E_straight
+  junction: intersection
+  legs:
+  - groups:
+    - S_left
+    lanes:
+    - left
+    - left
+    name: S
+    segments:
+    - S_1
+  - groups:
+    - E_left
+    - E_straight
+    lanes:
+    - straight
+    - straight
+    - left
+    name: E
+    segments:
+    - E_1
+  - groups:
+    - W_straight
+    lanes:
+    - straight
+    - straight
+    - straight
+    name: W
+    segments:
+    - W_1
+  red_amber_time: 0

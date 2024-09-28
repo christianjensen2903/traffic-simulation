@@ -1,0 +1,143 @@
+intersections:
+- allowed_green_signal_combinations:
+  - allowed:
+    - S_STRAIGHT
+    signal: N_STRAIGHT
+  - allowed:
+    - S_LEFT
+    - N_STRAIGHT
+    signal: S_STRAIGHT
+  - allowed:
+    - S_STRAIGHT
+    signal: S_LEFT
+  - allowed:
+    - W_STRAIGHT
+    - E_STRAIGHT
+    signal: E_RIGHT
+  - allowed:
+    - W_STRAIGHT
+    - E_RIGHT
+    signal: E_STRAIGHT
+  - allowed:
+    - E_RIGHT
+    - E_STRAIGHT
+    - W_LEFT
+    signal: W_STRAIGHT
+  - allowed:
+    - W_STRAIGHT
+    signal: W_LEFT
+  amber_time: 3
+  connections:
+  - groups:
+    - N_straight
+    index: 0
+    priority: true
+  - groups:
+    - S_straight
+    index: 1
+    priority: true
+  - groups:
+    - S_left
+    index: 2
+    priority: true
+  - groups:
+    - S_left
+    index: 3
+    priority: true
+  - groups:
+    - S_left
+    index: 4
+    priority: true
+  - groups:
+    - E_right
+    index: 5
+    priority: true
+  - groups:
+    - E_right
+    index: 6
+    priority: true
+  - groups:
+    - E_right
+    index: 7
+    priority: true
+  - groups:
+    - E_straight
+    index: 8
+    priority: true
+  - groups:
+    - E_straight
+    index: 9
+    priority: true
+  - groups:
+    - W_straight
+    index: 10
+    priority: true
+  - groups:
+    - W_straight
+    index: 11
+    priority: true
+  - groups:
+    - W_left
+    index: 12
+    priority: true
+  - groups:
+    - W_left
+    index: 13
+    priority: true
+  - groups:
+    - W_left
+    index: 14
+    priority: true
+  groups:
+  - S_left
+  - W_straight
+  - N_straight
+  - E_right
+  - W_left
+  - S_straight
+  - E_straight
+  junction: intersection
+  legs:
+  - groups:
+    - N_straight
+    lanes:
+    - straight
+    name: N
+    segments:
+    - N_1
+  - groups:
+    - S_left
+    - S_straight
+    lanes:
+    - straight
+    - left
+    - left
+    - left
+    name: S
+    segments:
+    - S_1
+  - groups:
+    - E_right
+    - E_straight
+    lanes:
+    - right
+    - right
+    - right
+    - straight
+    - straight
+    name: E
+    segments:
+    - E_1
+  - groups:
+    - W_straight
+    - W_left
+    lanes:
+    - straight
+    - straight
+    - left
+    - left
+    - left
+    name: W
+    segments:
+    - W_1
+  red_amber_time: 0
