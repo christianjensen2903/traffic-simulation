@@ -12,6 +12,7 @@ from environment import InternalLeg, Connection
 from allowed_signal_calculator import generate_allowed_combinations
 import yaml
 import os
+import subprocess
 
 # Load the SUMO network
 net_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -144,22 +145,10 @@ direction_angles = {
 linkIndexCounter = 0
 intLanes: list[str] = []
 lane_connection_strings: list[str] = []
-intersection_connection_strings: list[str] = []
 junction_strings: list[str] = []
 connections: list[Connection] = []
 
 for road in roads:
-    net_xml += f"""
-    <edge id=":intersection_{road.direction.value}" function="internal">"""
-    for lane_number, lane in enumerate(road.lanes):
-        int_id = f":intersection_{road.direction.value}_{lane_number}"
-        # TODO: Fix shape
-        net_xml += f"""
-        <lane id="{int_id}" index="{lane_number}" disallow="{DISALLOW}" speed="{SPEED}" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>"""
-        intLanes.append(int_id)
-    net_xml += """
-    </edge>
-    """
 
     degrees = direction_angles[road.direction]
 
@@ -236,7 +225,6 @@ for road in roads:
                         to_lane=0,
                         lane_type=lane,
                         state="o",
-                        via=f":intersection_{road.direction.value}_{lane_number}",
                         tl="intersection",
                         linkIndex=linkIndexCounter,
                     )
@@ -253,7 +241,6 @@ for road in roads:
                     to_lane=0,
                     lane_type=lane,
                     state="o",
-                    via=f":intersection_{road.direction.value}_{lane_number}",
                     tl="intersection",
                     linkIndex=linkIndexCounter,
                 )
@@ -268,35 +255,6 @@ for road in roads:
             linkIndexCounter += 1
     net_xml += "\n"
 
-    for lane_number, lane in enumerate(road.lanes):
-        if lane == LaneType.MAIN:
-            for sub_lane in [LaneType.LEFT, LaneType.RIGHT, LaneType.STRAIGHT]:
-                target_direction = get_lane_target_direction(road.direction, sub_lane)
-                intersection_connection_strings.append(
-                    generate_connection_xml(
-                        from_node=f":intersection_{road.direction.value}",
-                        to_node=f"{target_direction.value}_2",
-                        from_lane=lane_number,
-                        to_lane=0,
-                        lane_type=sub_lane,
-                        state="M",
-                    )
-                )
-
-        else:
-            target_direction = get_lane_target_direction(road.direction, lane)
-            intersection_connection_strings.append(
-                generate_connection_xml(
-                    from_node=f":intersection_{road.direction.value}",
-                    to_node=f"{target_direction.value}_2",
-                    from_lane=lane_number,
-                    to_lane=0,
-                    lane_type=lane,
-                    state="M",
-                )
-            )
-    net_xml += "\n"
-
 net_xml += "".join(junction_strings)
 
 incLanes: list[str] = []
@@ -309,9 +267,6 @@ net_xml += f"""
 net_xml += "\n"
 
 net_xml += "".join(lane_connection_strings)
-net_xml += "\n"
-net_xml += "".join(intersection_connection_strings)
-net_xml += "\n"
 
 net_xml += """
 </net>
@@ -413,11 +368,20 @@ if not os.path.exists(path):
 with open(f"{path}/configuration.yaml", "w") as f:
     yaml.dump(config, f)
 
+with open(f"{path}/intersection.net.xml", "w") as f:
+    f.write(net_xml)
+
+cmd = [
+    "netconvert",
+    "-s" f"{path}/intersection.net.xml",
+    "-o",
+    f"{path}/intersection.net.xml",
+]
+
+subprocess.run(cmd)
+
 with open(f"{path}/intersection.rou.xml", "w") as f:
     f.write(rou_xml)
 
 with open(f"{path}/net.sumocfg", "w") as f:
     f.write(sumo_cfg)
-
-with open(f"{path}/intersection.net.xml", "w") as f:
-    f.write(net_xml)
