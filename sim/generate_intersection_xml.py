@@ -10,7 +10,7 @@ from generate_intersection import (
 import math
 
 # Load the SUMO network
-xml = """<?xml version="1.0" encoding="UTF-8"?>
+net_xml = """<?xml version="1.0" encoding="UTF-8"?>
 
 <net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
 
@@ -144,14 +144,15 @@ intersection_connection_strings: list[str] = []
 junction_strings: list[str] = []
 
 for road in roads:
-    xml += f"""
+    net_xml += f"""
     <edge id=":intersection_{road.direction.value}" function="internal">"""
     for lane_number, lane in enumerate(road.lanes):
         int_id = f":intersection_{road.direction.value}_{lane_number}"
-        xml += f"""
+        # TODO: Fix shape
+        net_xml += f"""
         <lane id="{int_id}" index="{lane_number}" disallow="{DISALLOW}" speed="{SPEED}" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>"""
         intLanes.append(int_id)
-    xml += """
+    net_xml += """
     </edge>
     """
 
@@ -163,7 +164,7 @@ for road in roads:
     )
 
     # Add road to the XML
-    xml += generate_edge_xml(
+    net_xml += generate_edge_xml(
         edge_id=f"{road.direction.value}_1",
         from_node=f"{road.direction.value}_0",
         to_node="intersection",
@@ -191,7 +192,7 @@ for road in roads:
         [(-5, -INTERSECTION_OFFSET), (-5, -(ROAD_LENGTH + INTERSECTION_OFFSET))],
         degrees,
     )
-    xml += generate_edge_xml(
+    net_xml += generate_edge_xml(
         edge_id=f"{opposite_direction.value}_2",
         from_node="intersection",
         to_node=f"{opposite_direction.value}_3",
@@ -213,7 +214,7 @@ for road in roads:
         )
     )
 
-    xml += "\n"
+    net_xml += "\n"
 
     for lane_number, lane in enumerate(road.lanes):
         if lane == LaneType.MAIN:
@@ -253,7 +254,7 @@ for road in roads:
                 )
             )
             linkIndexCounter += 1
-    xml += "\n"
+    net_xml += "\n"
 
     for lane_number, lane in enumerate(road.lanes):
         if lane == LaneType.MAIN:
@@ -285,27 +286,64 @@ for road in roads:
                     state="M",
                 )
             )
-    xml += "\n"
+    net_xml += "\n"
 
-xml += "".join(junction_strings)
+net_xml += "".join(junction_strings)
 
 incLanes: list[str] = []
 for road in roads:
     for lane_number, lane in enumerate(road.lanes):
         incLanes.append(f"{road.direction.value}_1_{lane_number}")
-xml += f"""
+net_xml += f"""
     <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="{' '.join(incLanes)}" intLanes="{' '.join(intLanes)}" fringe="inner" shape="{shape_to_string([(INTERSECTION_OFFSET, INTERSECTION_OFFSET), (INTERSECTION_OFFSET, -INTERSECTION_OFFSET), (-INTERSECTION_OFFSET, -INTERSECTION_OFFSET), (-INTERSECTION_OFFSET, INTERSECTION_OFFSET)])}"/>"""
-xml += "\n"
+net_xml += "\n"
 
-xml += "".join(lane_connection_strings)
-xml += "\n"
-xml += "".join(intersection_connection_strings)
-xml += "\n"
+net_xml += "".join(lane_connection_strings)
+net_xml += "\n"
+net_xml += "".join(intersection_connection_strings)
+net_xml += "\n"
 
-xml += """
+net_xml += """
 </net>
 """
 
 # Save to file
 with open("intersection.net.xml", "w") as f:
-    f.write(xml)
+    f.write(net_xml)
+
+
+rou_xml = """<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-07-04 11:40:22 by Eclipse SUMO netedit Version 1.15.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">"""
+
+options = {300: 0.2, 600: 0.35, 900: 0.3, 1800: 0.05}
+
+id_counter = 0
+for road in roads:
+    for lane_type in [LaneType.LEFT, LaneType.RIGHT, LaneType.STRAIGHT]:
+        number_of_lanes = road.lanes.count(lane_type) + road.lanes.count(LaneType.MAIN)
+        if number_of_lanes == 0:
+            continue
+        # Pick a random number of vehicles per hour based on the options
+        vehicles_per_hour = min(
+            sum(
+                random.choices(
+                    list(options.keys()),
+                    weights=list(options.values()),
+                    k=number_of_lanes,
+                )
+            ),
+            3600,
+        )
+        target_direction = get_lane_target_direction(road.direction, lane_type)
+        rou_xml += f"""
+        <flow id="f_{id_counter}" begin="0.00" from="{road.direction.value}_1" to="{target_direction.value}_2" end="3600.00" vehsPerHour="{vehicles_per_hour}"/>"""
+        id_counter += 1
+rou_xml += """
+</routes>"""
+
+with open("intersection.rou.xml", "w") as f:
+    f.write(rou_xml)
