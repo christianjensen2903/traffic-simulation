@@ -214,7 +214,7 @@ for road in roads:
             junction_id=f"{opposite_direction.value}_3",
             x=shape_2[1][0],
             y=shape_2[1][1],
-            inc_lanes=[f"{opposite_direction.value}_2_1"],  # Only one lane
+            inc_lanes=[f"{opposite_direction.value}_2_0"],  # Only one lane
             shape=[(10, 10), (10, -10)],
         )
     )
@@ -270,18 +270,15 @@ for road in roads:
 
     for lane_number, lane in enumerate(road.lanes):
         if lane == LaneType.MAIN:
-            for target_direction in [
-                get_lane_target_direction(road.direction, LaneType.LEFT),
-                get_lane_target_direction(road.direction, LaneType.RIGHT),
-                get_lane_target_direction(road.direction, LaneType.STRAIGHT),
-            ]:
+            for sub_lane in [LaneType.LEFT, LaneType.RIGHT, LaneType.STRAIGHT]:
+                target_direction = get_lane_target_direction(road.direction, sub_lane)
                 intersection_connection_strings.append(
                     generate_connection_xml(
                         from_node=f":intersection_{road.direction.value}",
                         to_node=f"{target_direction.value}_2",
                         from_lane=lane_number,
                         to_lane=0,
-                        lane_type=target_direction,
+                        lane_type=sub_lane,
                         state="M",
                     )
                 )
@@ -294,7 +291,7 @@ for road in roads:
                     to_node=f"{target_direction.value}_2",
                     from_lane=lane_number,
                     to_lane=0,
-                    lane_type=target_direction,
+                    lane_type=lane,
                     state="M",
                 )
             )
@@ -308,6 +305,7 @@ for road in roads:
         incLanes.append(f"{road.direction.value}_1_{lane_number}")
 net_xml += f"""
     <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="{' '.join(incLanes)}" intLanes="{' '.join(intLanes)}" fringe="inner" shape="{shape_to_string([(INTERSECTION_OFFSET, INTERSECTION_OFFSET), (INTERSECTION_OFFSET, -INTERSECTION_OFFSET), (-INTERSECTION_OFFSET, -INTERSECTION_OFFSET), (-INTERSECTION_OFFSET, INTERSECTION_OFFSET)])}"/>"""
+
 net_xml += "\n"
 
 net_xml += "".join(lane_connection_strings)
@@ -358,7 +356,9 @@ legs = [
     InternalLeg(
         name=road.direction.value,
         lanes=[lane.value for lane in road.lanes],
-        groups=[f"{road.direction.value}_{lane.value}" for lane in road.lanes],
+        groups=list(
+            set([f"{road.direction.value}_{lane.value}" for lane in road.lanes])
+        ),
         radar=None,
         segments=[f"{road.direction.value}_1"],
     )
@@ -366,8 +366,9 @@ legs = [
 ]
 
 groups = [
-    f"{road.direction.value}_{lane.value}" for lane in road.lanes for road in roads
+    f"{road.direction.value}_{lane.value}" for road in roads for lane in road.lanes
 ]
+groups = list(set(groups))
 
 allowed_combinations = generate_allowed_combinations(roads)
 
