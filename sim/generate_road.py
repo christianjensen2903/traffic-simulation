@@ -42,15 +42,15 @@ def get_lane_type_probabilities(
         }
     else:
         # Weights for each lane type
-        w_left = 1.0  # Weight for left-turn lanes
-        w_right = 0.5  # Weight for right-turn lanes
+        w_left = 0.5  # Weight for left-turn lanes
+        w_right = 1.0  # Weight for right-turn lanes
         w_straight = (
             3.0  # Weight for straight lanes (higher to make straight more common)
         )
 
         # Calculate scores based on position
-        left_score = (total_lanes - position - 1) * w_left
-        right_score = position * w_right
+        left_score = position * w_left
+        right_score = (total_lanes - position - 1) * w_right
         straight_score = w_straight
 
         total_score = left_score + straight_score + right_score
@@ -83,9 +83,9 @@ def generate_random_road(direction: RoadDirection) -> Road:
         # Avoid lanes that would collide
 
         if LaneType.STRAIGHT in lanes:
-            probabilities[LaneType.LEFT] = 0
-        if LaneType.RIGHT in lanes:
-            probabilities[LaneType.LEFT] = 0
+            probabilities[LaneType.RIGHT] = 0
+        if LaneType.LEFT in lanes:
+            probabilities[LaneType.RIGHT] = 0
             probabilities[LaneType.STRAIGHT] = 0
 
         # Renormalize weights
@@ -100,3 +100,7 @@ def generate_random_road(direction: RoadDirection) -> Road:
         lanes.append(lane)
 
     return Road(lanes=lanes, road_type=road_type, direction=direction)
+
+
+if __name__ == "__main__":
+    print(generate_random_road(RoadDirection.N).model_dump_json(indent=4))

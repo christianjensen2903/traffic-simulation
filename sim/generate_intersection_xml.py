@@ -76,6 +76,7 @@ def rotate_shape(shape, angle_degrees):
 def generate_edge_xml(
     edge_id: str, from_node: str, to_node: str, shape: list[tuple[int, int]], road: Road
 ) -> str:
+
     xml = f"""
     <edge id="{edge_id}" from="{from_node}" to="{to_node}" name="{edge_id}" priority="11" type="{road.road_type.value}" spreadType="center" shape="{shape_to_string(shape)}">"""
     for i, lane in enumerate(road.lanes):
@@ -137,9 +138,9 @@ def generate_connection_xml(
 # Mapping directions to angles
 direction_angles = {
     RoadDirection.S: 0,
-    RoadDirection.E: 90,
+    RoadDirection.E: 270,
     RoadDirection.N: 180,
-    RoadDirection.W: 270,
+    RoadDirection.W: 90,
 }
 
 linkIndexCounter = 0

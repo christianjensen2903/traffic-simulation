@@ -2,16 +2,38 @@ intersections:
 - allowed_green_signal_combinations:
   - allowed:
     - S_STRAIGHT
+    - N_LEFT
+    - N_STRAIGHT
+    signal: N_RIGHT
+  - allowed:
+    - N_RIGHT
+    - S_STRAIGHT
+    - N_LEFT
     signal: N_STRAIGHT
   - allowed:
+    - N_RIGHT
+    - N_STRAIGHT
+    signal: N_LEFT
+  - allowed:
+    - N_RIGHT
     - N_STRAIGHT
     signal: S_STRAIGHT
-  - allowed: []
-    signal: W_RIGHT
+  - allowed:
+    - E_STRAIGHT
+    - W_STRAIGHT
+    signal: E_RIGHT
+  - allowed:
+    - E_RIGHT
+    - W_STRAIGHT
+    signal: E_STRAIGHT
+  - allowed:
+    - E_STRAIGHT
+    - E_RIGHT
+    signal: W_STRAIGHT
   amber_time: 3
   connections:
   - groups:
-    - N_straight
+    - N_right
     index: 0
     priority: true
   - groups:
@@ -23,11 +45,11 @@ intersections:
     index: 2
     priority: true
   - groups:
-    - S_straight
+    - N_straight
     index: 3
     priority: true
   - groups:
-    - S_straight
+    - N_left
     index: 4
     priority: true
   - groups:
@@ -35,41 +57,65 @@ intersections:
     index: 5
     priority: true
   - groups:
-    - W_right
+    - S_straight
     index: 6
     priority: true
+  - groups:
+    - E_right
+    index: 7
+    priority: true
+  - groups:
+    - E_straight
+    index: 8
+    priority: true
+  - groups:
+    - W_straight
+    index: 9
+    priority: true
   groups:
+  - S_straight
+  - W_straight
+  - N_left
+  - E_straight
+  - N_straight
+  - E_right
   - N_right
-  - S_right
-  - W_right
   junction: intersection
   legs:
   - groups:
+    - N_right
     - N_straight
-    - N_straight
-    - N_straight
+    - N_left
     lanes:
+    - right
     - straight
     - straight
     - straight
+    - left
     name: N
     segments:
     - N_1
   - groups:
     - S_straight
-    - S_straight
-    - S_straight
     lanes:
-    - straight
     - straight
     - straight
     name: S
     segments:
     - S_1
   - groups:
-    - W_right
+    - E_straight
+    - E_right
     lanes:
     - right
+    - straight
+    name: E
+    segments:
+    - E_1
+  - groups:
+    - W_straight
+    lanes:
+    - straight
     name: W
     segments:
     - W_1
