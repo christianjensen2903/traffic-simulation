@@ -25,14 +25,41 @@
 
     <edge id=":intersection_N" function="internal">
         <lane id=":intersection_N_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_N_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_N_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_N_3" index="3" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_N_4" index="4" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
     </edge>
     
-    <edge id="N_1" from="N_0" to="intersection" name="N_1" priority="11" type="highway.tertiary" spreadType="center" shape="5.00,-110.00 5.00,-10.00">
-        <lane id="N_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-5.00,110.00 -5.00,10.00"/>
+    <edge id="N_1" from="N_0" to="intersection" name="N_1" priority="11" type="highway.tertiary" spreadType="center" shape="5.00,-115.00 5.00,-15.00">
+        <lane id="N_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-5.00,115.00 -5.00,15.00"/>
+        <lane id="N_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-8.20,115.00 -8.20,15.00"/>
+        <lane id="N_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-11.40,115.00 -11.40,15.00"/>
+        <lane id="N_1_3" index="3" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-14.60,115.00 -14.60,15.00"/>
+        <lane id="N_1_4" index="4" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-17.80,115.00 -17.80,15.00"/>
     </edge>
     
-    <edge id="S_2" from="intersection" to="S_3" name="S_2" priority="11" type="highway.tertiary" spreadType="center" shape="-5.00,-10.00 -5.00,-110.00">
-        <lane id="S_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-5.00,-10.00 -5.00,-110.00"/>
+    <edge id="S_2" from="intersection" to="S_3" name="S_2" priority="11" type="highway.tertiary" spreadType="center" shape="-5.00,-15.00 -5.00,-115.00">
+        <lane id="S_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-5.00,-15.00 -5.00,-115.00"/>
+    </edge>
+    
+
+
+
+    <edge id=":intersection_S" function="internal">
+        <lane id=":intersection_S_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_S_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_S_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+    </edge>
+    
+    <edge id="S_1" from="S_0" to="intersection" name="S_1" priority="11" type="highway.secondary" spreadType="center" shape="-5.00,115.00 -5.00,15.00">
+        <lane id="S_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-5.00,115.00 -5.00,15.00"/>
+        <lane id="S_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-1.80,115.00 -1.80,15.00"/>
+        <lane id="S_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="1.40,115.00 1.40,15.00"/>
+    </edge>
+    
+    <edge id="N_2" from="intersection" to="N_3" name="N_2" priority="11" type="highway.secondary" spreadType="center" shape="5.00,15.00 5.00,115.00">
+        <lane id="N_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="-5.00,-15.00 -5.00,-115.00"/>
     </edge>
     
 
@@ -42,16 +69,18 @@
         <lane id=":intersection_E_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
         <lane id=":intersection_E_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
         <lane id=":intersection_E_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_E_3" index="3" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
     </edge>
     
-    <edge id="E_1" from="E_0" to="intersection" name="E_1" priority="11" type="highway.primary" spreadType="center" shape="110.00,5.00 10.00,5.00">
-        <lane id="E_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-110.00 5.00,-10.00"/>
-        <lane id="E_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-113.20 5.00,-13.20"/>
-        <lane id="E_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-116.40 5.00,-16.40"/>
+    <edge id="E_1" from="E_0" to="intersection" name="E_1" priority="11" type="highway.secondary" spreadType="center" shape="115.00,5.00 15.00,5.00">
+        <lane id="E_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-115.00 5.00,-15.00"/>
+        <lane id="E_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-118.20 5.00,-18.20"/>
+        <lane id="E_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-121.40 5.00,-21.40"/>
+        <lane id="E_1_3" index="3" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-124.60 5.00,-24.60"/>
     </edge>
     
-    <edge id="W_2" from="intersection" to="W_3" name="W_2" priority="11" type="highway.primary" spreadType="center" shape="10.00,-5.00 110.00,-5.00">
-        <lane id="W_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,10.00 5.00,110.00"/>
+    <edge id="W_2" from="intersection" to="W_3" name="W_2" priority="11" type="highway.secondary" spreadType="center" shape="15.00,-5.00 115.00,-5.00">
+        <lane id="W_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,15.00 5.00,115.00"/>
     </edge>
     
 
@@ -60,40 +89,66 @@
     <edge id=":intersection_W" function="internal">
         <lane id=":intersection_W_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
         <lane id=":intersection_W_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_W_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
+        <lane id=":intersection_W_3" index="3" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="30" shape="313.74,480.14 306.42,472.85 301.49,466.60 297.40,461.12 292.60,456.08"/>
     </edge>
     
-    <edge id="W_1" from="W_0" to="intersection" name="W_1" priority="11" type="highway.tertiary" spreadType="center" shape="-110.00,-5.00 -10.00,-5.00">
-        <lane id="W_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-110.00 5.00,-10.00"/>
-        <lane id="W_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-106.80 5.00,-6.80"/>
+    <edge id="W_1" from="W_0" to="intersection" name="W_1" priority="11" type="highway.tertiary" spreadType="center" shape="-115.00,-5.00 -15.00,-5.00">
+        <lane id="W_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-115.00 5.00,-15.00"/>
+        <lane id="W_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-111.80 5.00,-11.80"/>
+        <lane id="W_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-108.60 5.00,-8.60"/>
+        <lane id="W_1_3" index="3" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,-105.40 5.00,-5.40"/>
     </edge>
     
-    <edge id="E_2" from="intersection" to="E_3" name="E_2" priority="11" type="highway.tertiary" spreadType="center" shape="-10.00,5.00 -110.00,5.00">
-        <lane id="E_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,10.00 5.00,110.00"/>
+    <edge id="E_2" from="intersection" to="E_3" name="E_2" priority="11" type="highway.tertiary" spreadType="center" shape="-15.00,5.00 -115.00,5.00">
+        <lane id="E_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="25" length="100" shape="5.00,15.00 5.00,115.00"/>
     </edge>
     
 
 
 
-    <junction id="N_0" type="dead_end" x="5.00" y="-110.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
-    <junction id="S_3" type="dead_end" x="-5.00" y="-110.00" incLanes="S_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
-    <junction id="E_0" type="dead_end" x="110.00" y="5.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
-    <junction id="W_3" type="dead_end" x="110.00" y="-5.00" incLanes="W_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
-    <junction id="W_0" type="dead_end" x="-110.00" y="-5.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
-    <junction id="E_3" type="dead_end" x="-110.00" y="5.00" incLanes="E_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
-    <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="N_1_0 E_1_0 E_1_1 E_1_2 W_1_0 W_1_1" intLanes=":intersection_N_0 :intersection_E_0 :intersection_E_1 :intersection_E_2 :intersection_W_0 :intersection_W_1" fringe="inner" shape="312.73,481.39 329.28,460.72 327.46,458.20 327.22,456.67 327.42,454.97 328.06,453.09 329.14,451.02 310.93,440.02 309.42,441.66 308.56,442.00 307.65,442.02 306.66,441.72 305.61,441.10 291.55,457.29 293.48,460.48 293.59,462.48 293.14,464.76 292.13,467.30 290.55,470.12 307.43,482.02 309.04,480.50 309.90,480.23 310.81,480.29 311.75,480.68"/>
+    <junction id="N_0" type="dead_end" x="5.00" y="-115.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="S_3" type="dead_end" x="-5.00" y="-115.00" incLanes="S_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="S_0" type="dead_end" x="-5.00" y="115.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="N_3" type="dead_end" x="5.00" y="115.00" incLanes="N_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="E_0" type="dead_end" x="115.00" y="5.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="W_3" type="dead_end" x="115.00" y="-5.00" incLanes="W_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="W_0" type="dead_end" x="-115.00" y="-5.00" incLanes="" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="E_3" type="dead_end" x="-115.00" y="5.00" incLanes="E_2_1" intLanes="" shape="10.00,10.00 10.00,-10.00"/>
+    <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="N_1_0 N_1_1 N_1_2 N_1_3 N_1_4 S_1_0 S_1_1 S_1_2 E_1_0 E_1_1 E_1_2 E_1_3 W_1_0 W_1_1 W_1_2 W_1_3" intLanes=":intersection_N_0 :intersection_N_1 :intersection_N_2 :intersection_N_3 :intersection_N_4 :intersection_S_0 :intersection_S_1 :intersection_S_2 :intersection_E_0 :intersection_E_1 :intersection_E_2 :intersection_E_3 :intersection_W_0 :intersection_W_1 :intersection_W_2 :intersection_W_3" fringe="inner" shape="15.00,15.00 15.00,-15.00 -15.00,-15.00 -15.00,15.00"/>
 
     <connection from="N_1" to="W_2" fromLane="0" toLane="0" dir="l" state="o" via=":intersection_N_0" tl="intersection" linkIndex="0" />
-    <connection from="E_1" to="E_2" fromLane="0" toLane="0" dir="s" state="o" via=":intersection_E_0" tl="intersection" linkIndex="1" />
-    <connection from="E_1" to="E_2" fromLane="1" toLane="0" dir="s" state="o" via=":intersection_E_1" tl="intersection" linkIndex="2" />
-    <connection from="E_1" to="E_2" fromLane="2" toLane="0" dir="s" state="o" via=":intersection_E_2" tl="intersection" linkIndex="3" />
-    <connection from="W_1" to="W_2" fromLane="0" toLane="0" dir="s" state="o" via=":intersection_W_0" tl="intersection" linkIndex="4" />
-    <connection from="W_1" to="W_2" fromLane="1" toLane="0" dir="s" state="o" via=":intersection_W_1" tl="intersection" linkIndex="5" />
+    <connection from="N_1" to="N_2" fromLane="1" toLane="0" dir="s" state="o" via=":intersection_N_1" tl="intersection" linkIndex="1" />
+    <connection from="N_1" to="E_2" fromLane="2" toLane="0" dir="r" state="o" via=":intersection_N_2" tl="intersection" linkIndex="2" />
+    <connection from="N_1" to="E_2" fromLane="3" toLane="0" dir="r" state="o" via=":intersection_N_3" tl="intersection" linkIndex="3" />
+    <connection from="N_1" to="E_2" fromLane="4" toLane="0" dir="r" state="o" via=":intersection_N_4" tl="intersection" linkIndex="4" />
+    <connection from="S_1" to="S_2" fromLane="0" toLane="0" dir="s" state="o" via=":intersection_S_0" tl="intersection" linkIndex="5" />
+    <connection from="S_1" to="S_2" fromLane="1" toLane="0" dir="s" state="o" via=":intersection_S_1" tl="intersection" linkIndex="6" />
+    <connection from="S_1" to="W_2" fromLane="2" toLane="0" dir="r" state="o" via=":intersection_S_2" tl="intersection" linkIndex="7" />
+    <connection from="E_1" to="E_2" fromLane="0" toLane="0" dir="s" state="o" via=":intersection_E_0" tl="intersection" linkIndex="8" />
+    <connection from="E_1" to="E_2" fromLane="1" toLane="0" dir="s" state="o" via=":intersection_E_1" tl="intersection" linkIndex="9" />
+    <connection from="E_1" to="E_2" fromLane="2" toLane="0" dir="s" state="o" via=":intersection_E_2" tl="intersection" linkIndex="10" />
+    <connection from="E_1" to="E_2" fromLane="3" toLane="0" dir="s" state="o" via=":intersection_E_3" tl="intersection" linkIndex="11" />
+    <connection from="W_1" to="W_2" fromLane="0" toLane="0" dir="s" state="o" via=":intersection_W_0" tl="intersection" linkIndex="12" />
+    <connection from="W_1" to="W_2" fromLane="1" toLane="0" dir="s" state="o" via=":intersection_W_1" tl="intersection" linkIndex="13" />
+    <connection from="W_1" to="W_2" fromLane="2" toLane="0" dir="s" state="o" via=":intersection_W_2" tl="intersection" linkIndex="14" />
+    <connection from="W_1" to="W_2" fromLane="3" toLane="0" dir="s" state="o" via=":intersection_W_3" tl="intersection" linkIndex="15" />
 
     <connection from=":intersection_N" to="W_2" fromLane="0" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_N" to="N_2" fromLane="1" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_N" to="E_2" fromLane="2" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_N" to="E_2" fromLane="3" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_N" to="E_2" fromLane="4" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_S" to="S_2" fromLane="0" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_S" to="S_2" fromLane="1" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_S" to="W_2" fromLane="2" toLane="0" dir="r" state="M" />
     <connection from=":intersection_E" to="E_2" fromLane="0" toLane="0" dir="r" state="M" />
     <connection from=":intersection_E" to="E_2" fromLane="1" toLane="0" dir="r" state="M" />
     <connection from=":intersection_E" to="E_2" fromLane="2" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_E" to="E_2" fromLane="3" toLane="0" dir="r" state="M" />
     <connection from=":intersection_W" to="W_2" fromLane="0" toLane="0" dir="r" state="M" />
     <connection from=":intersection_W" to="W_2" fromLane="1" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_W" to="W_2" fromLane="2" toLane="0" dir="r" state="M" />
+    <connection from=":intersection_W" to="W_2" fromLane="3" toLane="0" dir="r" state="M" />
 
 </net>

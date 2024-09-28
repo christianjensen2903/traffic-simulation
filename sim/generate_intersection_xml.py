@@ -37,7 +37,7 @@ xml = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-INTERSECTION_OFFSET = 10
+INTERSECTION_OFFSET = 15  # TODO: Make this dynamic based on the roads
 ROAD_LENGTH = 100
 LANE_WIDTH = 3.2
 DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
@@ -216,36 +216,75 @@ for road in roads:
     xml += "\n"
 
     for lane_number, lane in enumerate(road.lanes):
-        print(road.direction, lane)
-        target_direction = get_lane_target_direction(road.direction, lane)
-        lane_connection_strings.append(
-            generate_connection_xml(
-                from_node=f"{road.direction.value}_1",
-                to_node=f"{target_direction.value}_2",
-                from_lane=lane_number,
-                to_lane=0,
-                lane_type=lane,
-                state="o",
-                via=f":intersection_{road.direction.value}_{lane_number}",
-                tl="intersection",
-                linkIndex=linkIndexCounter,
+        if lane == LaneType.MAIN:
+            for target_direction in [
+                get_lane_target_direction(road.direction, LaneType.LEFT),
+                get_lane_target_direction(road.direction, LaneType.RIGHT),
+                get_lane_target_direction(road.direction, LaneType.STRAIGHT),
+            ]:
+                lane_connection_strings.append(
+                    generate_connection_xml(
+                        from_node=f"{road.direction.value}_1",
+                        to_node=f"{target_direction.value}_2",
+                        from_lane=lane_number,
+                        to_lane=0,
+                        lane_type=lane,
+                        state="o",
+                        via=f":intersection_{road.direction.value}_{lane_number}",
+                        tl="intersection",
+                        linkIndex=linkIndexCounter,
+                    )
+                )
+                linkIndexCounter += 1
+        else:
+            target_direction = get_lane_target_direction(road.direction, lane)
+
+            lane_connection_strings.append(
+                generate_connection_xml(
+                    from_node=f"{road.direction.value}_1",
+                    to_node=f"{target_direction.value}_2",
+                    from_lane=lane_number,
+                    to_lane=0,
+                    lane_type=lane,
+                    state="o",
+                    via=f":intersection_{road.direction.value}_{lane_number}",
+                    tl="intersection",
+                    linkIndex=linkIndexCounter,
+                )
             )
-        )
-        linkIndexCounter += 1
+            linkIndexCounter += 1
     xml += "\n"
 
     for lane_number, lane in enumerate(road.lanes):
-        target_direction = get_lane_target_direction(road.direction, lane)
-        intersection_connection_strings.append(
-            generate_connection_xml(
-                from_node=f":intersection_{road.direction.value}",
-                to_node=f"{target_direction.value}_2",
-                from_lane=lane_number,
-                to_lane=0,
-                lane_type=target_direction,
-                state="M",
+        if lane == LaneType.MAIN:
+            for target_direction in [
+                get_lane_target_direction(road.direction, LaneType.LEFT),
+                get_lane_target_direction(road.direction, LaneType.RIGHT),
+                get_lane_target_direction(road.direction, LaneType.STRAIGHT),
+            ]:
+                intersection_connection_strings.append(
+                    generate_connection_xml(
+                        from_node=f":intersection_{road.direction.value}",
+                        to_node=f"{target_direction.value}_2",
+                        from_lane=lane_number,
+                        to_lane=0,
+                        lane_type=target_direction,
+                        state="M",
+                    )
+                )
+
+        else:
+            target_direction = get_lane_target_direction(road.direction, lane)
+            intersection_connection_strings.append(
+                generate_connection_xml(
+                    from_node=f":intersection_{road.direction.value}",
+                    to_node=f"{target_direction.value}_2",
+                    from_lane=lane_number,
+                    to_lane=0,
+                    lane_type=target_direction,
+                    state="M",
+                )
             )
-        )
     xml += "\n"
 
 xml += "".join(junction_strings)
@@ -255,7 +294,7 @@ for road in roads:
     for lane_number, lane in enumerate(road.lanes):
         incLanes.append(f"{road.direction.value}_1_{lane_number}")
 xml += f"""
-    <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="{' '.join(incLanes)}" intLanes="{' '.join(intLanes)}" fringe="inner" shape="312.73,481.39 329.28,460.72 327.46,458.20 327.22,456.67 327.42,454.97 328.06,453.09 329.14,451.02 310.93,440.02 309.42,441.66 308.56,442.00 307.65,442.02 306.66,441.72 305.61,441.10 291.55,457.29 293.48,460.48 293.59,462.48 293.14,464.76 292.13,467.30 290.55,470.12 307.43,482.02 309.04,480.50 309.90,480.23 310.81,480.29 311.75,480.68"/>"""
+    <junction id="intersection" type="traffic_light" x="0" y="0" incLanes="{' '.join(incLanes)}" intLanes="{' '.join(intLanes)}" fringe="inner" shape="{shape_to_string([(INTERSECTION_OFFSET, INTERSECTION_OFFSET), (INTERSECTION_OFFSET, -INTERSECTION_OFFSET), (-INTERSECTION_OFFSET, -INTERSECTION_OFFSET), (-INTERSECTION_OFFSET, INTERSECTION_OFFSET)])}"/>"""
 xml += "\n"
 
 xml += "".join(lane_connection_strings)
