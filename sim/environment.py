@@ -29,7 +29,6 @@ class InternalLeg(BaseModel):
     name: str
     lanes: list[str]
     groups: list[str]
-    radar: str
     segments: list[str]
 
 
@@ -51,7 +50,9 @@ def load_configuration(
         for connection in intersection["connections"]:
             connections.append(
                 Connection(
-                    connection["index"], connection["groups"], connection["priority"]
+                    index=connection["index"],
+                    groups=connection["groups"],
+                    priority=connection["priority"],
                 )
             )
 
@@ -105,11 +106,10 @@ if "SUMO_HOME" in os.environ:
 lock = threading.Lock()
 
 
-class Connection:
-    def __init__(self, number: int, groups: list[str], priority: bool):
-        self.number = number
-        self.groups = groups
-        self.priority = priority
+class Connection(BaseModel):
+    index: int
+    groups: list[str]
+    priority: bool
 
 
 class TrafficSimulationEnvHandler:

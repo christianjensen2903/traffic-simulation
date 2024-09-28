@@ -8,6 +8,10 @@ from generate_intersection import (
     get_lane_target_direction,
 )
 import math
+from environment import InternalLeg, Connection
+from allowed_signal_calculator import generate_allowed_combinations
+import yaml
+import os
 
 # Load the SUMO network
 net_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -142,6 +146,7 @@ intLanes: list[str] = []
 lane_connection_strings: list[str] = []
 intersection_connection_strings: list[str] = []
 junction_strings: list[str] = []
+connections: list[Connection] = []
 
 for road in roads:
     net_xml += f"""
@@ -253,6 +258,13 @@ for road in roads:
                     linkIndex=linkIndexCounter,
                 )
             )
+            connections.append(
+                Connection(
+                    priority=True,
+                    index=linkIndexCounter,
+                    groups=[f"{road.direction.value}_{lane.value}"],
+                )
+            )
             linkIndexCounter += 1
     net_xml += "\n"
 
@@ -307,10 +319,6 @@ net_xml += """
 </net>
 """
 
-# Save to file
-with open("intersection.net.xml", "w") as f:
-    f.write(net_xml)
-
 
 rou_xml = """<?xml version="1.0" encoding="UTF-8"?>
 
@@ -319,7 +327,7 @@ rou_xml = """<?xml version="1.0" encoding="UTF-8"?>
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">"""
 
-options = {300: 0.2, 600: 0.35, 900: 0.3, 1800: 0.05}
+options = {150: 0.5, 300: 0.2, 600: 0.3, 900: 0.3, 1800: 0.04, 3600: 0.01}
 
 id_counter = 0
 for road in roads:
@@ -345,5 +353,70 @@ for road in roads:
 rou_xml += """
 </routes>"""
 
-with open("intersection.rou.xml", "w") as f:
+
+legs = [
+    InternalLeg(
+        name=road.direction.value,
+        lanes=[lane.value for lane in road.lanes],
+        groups=[f"{road.direction.value}_{lane.value}" for lane in road.lanes],
+        radar=None,
+        segments=[f"{road.direction.value}_1"],
+    )
+    for road in roads
+]
+
+groups = [
+    f"{road.direction.value}_{lane.value}" for lane in road.lanes for road in roads
+]
+
+allowed_combinations = generate_allowed_combinations(roads)
+
+# Make configuration.yaml
+config = {
+    "intersections": [
+        {
+            "legs": [leg.model_dump(mode="json") for leg in legs],
+            "groups": groups,
+            "allowed_green_signal_combinations": [
+                {
+                    "signal": str(signal),
+                    "allowed": [str(lane) for lane in allowed],
+                }
+                for signal, allowed in allowed_combinations.items()
+            ],
+            "junction": "intersection",
+            "amber_time": 3,
+            "red_amber_time": 0,
+            "connections": [
+                connection.model_dump(mode="json") for connection in connections
+            ],
+        }
+    ]
+}
+
+
+# Write net.sumocfg
+sumo_cfg = f"""
+<configuration>
+    <net-file value="intersection.net.xml"/>
+    <route-files value="intersection.rou.xml"/>
+</configuration>
+"""
+
+path = "models/2"
+
+# Make folder if it doesn't exist
+if not os.path.exists(path):
+    os.makedirs(path)
+
+with open(f"{path}/configuration.yaml", "w") as f:
+    yaml.dump(config, f)
+
+with open(f"{path}/intersection.rou.xml", "w") as f:
     f.write(rou_xml)
+
+with open(f"{path}/net.sumocfg", "w") as f:
+    f.write(sumo_cfg)
+
+with open(f"{path}/intersection.net.xml", "w") as f:
+    f.write(net_xml)
