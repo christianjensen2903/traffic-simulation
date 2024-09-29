@@ -1,4 +1,0 @@
-<configuration>
-    <net-file value="1.net.xml"/>
-    <route-files value="1.rou.xml"/>
-</configuration>
