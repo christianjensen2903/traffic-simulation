@@ -17,10 +17,12 @@ class RoadDirection(Enum):
 
 
 class LaneType(Enum):
-    MAIN = "main"
+    ALL = "main"
     STRAIGHT = "straight"
     LEFT = "left"
     RIGHT = "right"
+    STRAIGHT_RIGHT = "straight_right"
+    STRAIGHT_LEFT = "straight_left"
 
 
 class Road(BaseModel):
@@ -35,15 +37,19 @@ def get_lane_type_probabilities(
     """Get the lane type probabilities for the given position and total lanes"""
     if total_lanes == 1:
         return {
-            LaneType.MAIN: 0.4,
+            LaneType.ALL: 0.4,
             LaneType.STRAIGHT: 0.4,
             LaneType.LEFT: 0.1,
             LaneType.RIGHT: 0.1,
+            LaneType.STRAIGHT_LEFT: 0,
+            LaneType.STRAIGHT_RIGHT: 0,
         }
     else:
         # Weights for each lane type
         w_left = 0.5  # Weight for left-turn lanes
         w_right = 1.0  # Weight for right-turn lanes
+        w_straight_right = 1
+        w_straight_left = 0.5
         w_straight = (
             3.0  # Weight for straight lanes (higher to make straight more common)
         )
@@ -51,20 +57,32 @@ def get_lane_type_probabilities(
         # Calculate scores based on position
         left_score = position * w_left
         right_score = (total_lanes - position - 1) * w_right
+        straight_right_score = (total_lanes - position - 1) * w_straight_right
+        straight_left_score = position * w_straight_left
         straight_score = w_straight
 
-        total_score = left_score + straight_score + right_score
+        total_score = (
+            left_score
+            + straight_score
+            + right_score
+            + straight_right_score
+            + straight_left_score
+        )
 
         # Calculate probabilities
         p_left = left_score / total_score
         p_straight = straight_score / total_score
         p_right = right_score / total_score
+        p_straight_right = straight_right_score / total_score
+        p_straight_left = straight_left_score / total_score
 
         return {
-            LaneType.MAIN: 0,
+            LaneType.ALL: 0,
             LaneType.LEFT: p_left,
             LaneType.STRAIGHT: p_straight,
             LaneType.RIGHT: p_right,
+            LaneType.STRAIGHT_RIGHT: p_straight_right,
+            LaneType.STRAIGHT_LEFT: p_straight_left,
         }
 
 
@@ -82,11 +100,18 @@ def generate_random_road(direction: RoadDirection) -> Road:
 
         # Avoid lanes that would collide
 
-        if LaneType.STRAIGHT in lanes:
+        if LaneType.RIGHT in lanes:
+            probabilities[LaneType.STRAIGHT_RIGHT] = 0
+        if LaneType.STRAIGHT in lanes or LaneType.STRAIGHT_RIGHT in lanes:
             probabilities[LaneType.RIGHT] = 0
+            probabilities[LaneType.STRAIGHT_RIGHT] = 0
+        if LaneType.STRAIGHT_LEFT in lanes:
+            break
         if LaneType.LEFT in lanes:
             probabilities[LaneType.RIGHT] = 0
             probabilities[LaneType.STRAIGHT] = 0
+            probabilities[LaneType.STRAIGHT_RIGHT] = 0
+            probabilities[LaneType.STRAIGHT_LEFT] = 0
 
         # Renormalize weights
         total_weight = sum(probabilities.values())

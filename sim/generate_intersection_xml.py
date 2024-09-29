@@ -3,9 +3,10 @@ from generate_intersection import (
     Road,
     RoadDirection,
     LaneType,
+    RoadType,
     generate_intersection,
     get_opposite_direction,
-    get_lane_target_direction,
+    get_lane_target_directions,
 )
 import math
 from environment import InternalLeg, Connection
@@ -13,6 +14,13 @@ from allowed_signal_calculator import generate_allowed_combinations
 import yaml
 import os
 import subprocess
+
+
+speed_limits = {
+    RoadType.HIGHWAY_PRIMARY: 27.78,
+    RoadType.HIGHWAY_SECONDARY: 27.78,
+    RoadType.HIGHWAY_TERTIARY: 22.22,
+}
 
 
 def generate_intersection_xml(path: str):
@@ -43,23 +51,15 @@ def generate_intersection_xml(path: str):
         </tlLogic>
     """
 
-    INTERSECTION_OFFSET = 15  # TODO: Make this dynamic based on the roads
+    INTERSECTION_OFFSET = 15
     ROAD_LENGTH = 100
     LANE_WIDTH = 3.2
     DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
-    SPEED = 25
 
     roads = generate_intersection()
 
     def shape_to_string(shape: list[tuple[float, float]]) -> str:
         return " ".join([f"{x:.2f},{y:.2f}" for x, y in shape])
-
-    def flip_around_axis(
-        shape: list[tuple[int, int]], around_y: bool, around_x: bool
-    ) -> list[tuple[int, int]]:
-        return [
-            (x * -1 if around_y else x, y * -1 if around_x else y) for x, y in shape
-        ]
 
     def rotate_point_clockwise(point, angle_degrees):
         angle_radians = math.radians(angle_degrees)
@@ -88,7 +88,7 @@ def generate_intersection_xml(path: str):
             ]
             lane_shape = rotate_shape(lane_shape, degrees)
             xml += f"""
-            <lane id="{edge_id}_{i}" index="{i}" disallow="{DISALLOW}" speed="{SPEED}" length="{ROAD_LENGTH}" shape="{shape_to_string(lane_shape)}"/>"""
+            <lane id="{edge_id}_{i}" index="{i}" disallow="{DISALLOW}" speed="{speed_limits[road.road_type]}" length="{ROAD_LENGTH}" shape="{shape_to_string(lane_shape)}"/>"""
         xml += """
         </edge>
         """
@@ -212,28 +212,8 @@ def generate_intersection_xml(path: str):
         net_xml += "\n"
 
         for lane_number, lane in enumerate(road.lanes):
-            if lane == LaneType.MAIN:
-                for target_direction in [
-                    get_lane_target_direction(road.direction, LaneType.LEFT),
-                    get_lane_target_direction(road.direction, LaneType.RIGHT),
-                    get_lane_target_direction(road.direction, LaneType.STRAIGHT),
-                ]:
-                    lane_connection_strings.append(
-                        generate_connection_xml(
-                            from_node=f"{road.direction.value}_1",
-                            to_node=f"{target_direction.value}_2",
-                            from_lane=lane_number,
-                            to_lane=0,
-                            lane_type=lane,
-                            state="o",
-                            tl="intersection",
-                            linkIndex=linkIndexCounter,
-                        )
-                    )
-                    linkIndexCounter += 1
-            else:
-                target_direction = get_lane_target_direction(road.direction, lane)
-
+            target_directions = get_lane_target_directions(road.direction, lane)
+            for target_direction in target_directions:
                 lane_connection_strings.append(
                     generate_connection_xml(
                         from_node=f"{road.direction.value}_1",
@@ -246,14 +226,16 @@ def generate_intersection_xml(path: str):
                         linkIndex=linkIndexCounter,
                     )
                 )
-                connections.append(
-                    Connection(
-                        priority=True,
-                        index=linkIndexCounter,
-                        groups=[f"{road.direction.value}_{lane.value}"],
-                    )
+
+            connections.append(
+                Connection(
+                    priority=True,
+                    index=linkIndexCounter,
+                    groups=[f"{road.direction.value}_{lane.value}"],
                 )
-                linkIndexCounter += 1
+            )
+            linkIndexCounter += 1
+
         net_xml += "\n"
 
     net_xml += "".join(junction_strings)
@@ -284,10 +266,8 @@ def generate_intersection_xml(path: str):
 
     id_counter = 0
     for road in roads:
-        for lane_type in [LaneType.LEFT, LaneType.RIGHT, LaneType.STRAIGHT]:
-            number_of_lanes = road.lanes.count(lane_type) + road.lanes.count(
-                LaneType.MAIN
-            )
+        for lane_type in list(LaneType):
+            number_of_lanes = road.lanes.count(lane_type)
             if number_of_lanes == 0:
                 continue
             # Pick a random number of vehicles per hour based on the options
@@ -301,10 +281,11 @@ def generate_intersection_xml(path: str):
                 ),
                 3600,
             )
-            target_direction = get_lane_target_direction(road.direction, lane_type)
-            rou_xml += f"""
-            <flow id="f_{id_counter}" begin="0.00" from="{road.direction.value}_1" to="{target_direction.value}_2" end="3600.00" vehsPerHour="{vehicles_per_hour}"/>"""
-            id_counter += 1
+            target_directions = get_lane_target_directions(road.direction, lane_type)
+            for target_direction in target_directions:
+                rou_xml += f"""
+                <flow id="f_{id_counter}" begin="0.00" from="{road.direction.value}_1" to="{target_direction.value}_2" end="3600.00" vehsPerHour="{vehicles_per_hour}"/>"""
+                id_counter += 1
     rou_xml += """
     </routes>"""
 
@@ -386,6 +367,4 @@ def generate_intersection_xml(path: str):
 
 
 if __name__ == "__main__":
-    n = 100
-    for i in range(2, 2 + n):
-        generate_intersection_xml(path=f"models/{i}")
+    generate_intersection_xml(path=f"models/{2}")

@@ -9,7 +9,7 @@ def run_game():
 
     test_duration_seconds = 600
     is_random = True
-    configuration_file = "models/1/glue_configuration copy.yaml"
+    configuration_file = "models/2/configuration.yaml"
     start_time = time()
 
     input_queue = Queue()

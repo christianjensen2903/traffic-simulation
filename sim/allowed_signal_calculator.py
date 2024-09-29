@@ -56,7 +56,7 @@ def is_conflicting(l1: Lane, l2: Lane) -> bool:
     # Left turn conflicts
     if l1.lane_type == LaneType.LEFT:
 
-        if l2.lane_type == LaneType.MAIN:
+        if l2.lane_type == LaneType.ALL:
             return True
 
         # Conflicts with opposing straight and right turns
@@ -69,7 +69,7 @@ def is_conflicting(l1: Lane, l2: Lane) -> bool:
 
     # Straight movement conflicts
     if l1.lane_type == LaneType.STRAIGHT:
-        if l2.lane_type == LaneType.MAIN:
+        if l2.lane_type == LaneType.ALL:
             return True
 
         # Conflicts with opposing left turns
@@ -85,7 +85,7 @@ def is_conflicting(l1: Lane, l2: Lane) -> bool:
 
     # Right turn conflicts
     if l1.lane_type == LaneType.RIGHT:
-        if l2.lane_type == LaneType.MAIN:
+        if l2.lane_type == LaneType.ALL:
             return True
 
         # Conflicts with opposing left turns
@@ -98,7 +98,7 @@ def is_conflicting(l1: Lane, l2: Lane) -> bool:
             # TODO: Same here with check left adjacent
             return True
 
-    if l1.lane_type == LaneType.MAIN:
+    if l1.lane_type == LaneType.ALL:
         return True
 
     return False

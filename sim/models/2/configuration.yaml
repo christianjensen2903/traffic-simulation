@@ -1,33 +1,41 @@
 intersections:
 - allowed_green_signal_combinations:
   - allowed:
+    - N_STRAIGHT
     - S_STRAIGHT
+    - W_RIGHT
+    - W_LEFT
+    signal: N_STRAIGHT_RIGHT
+  - allowed:
+    - S_STRAIGHT
+    - N_STRAIGHT_RIGHT
     signal: N_STRAIGHT
   - allowed:
     - N_STRAIGHT
+    - N_STRAIGHT_RIGHT
     signal: S_STRAIGHT
   - allowed:
-    - W_STRAIGHT
-    signal: W_LEFT
-  - allowed:
     - W_LEFT
-    signal: W_STRAIGHT
+    signal: W_RIGHT
+  - allowed:
+    - W_RIGHT
+    signal: W_LEFT
   amber_time: 3
   connections:
   - groups:
-    - N_straight
+    - N_straight_right
     index: 0
     priority: true
   - groups:
-    - S_straight
+    - N_straight
     index: 1
     priority: true
   - groups:
-    - S_straight
+    - N_straight
     index: 2
     priority: true
   - groups:
-    - S_straight
+    - N_straight
     index: 3
     priority: true
   - groups:
@@ -35,23 +43,40 @@ intersections:
     index: 4
     priority: true
   - groups:
-    - W_left
+    - S_straight
     index: 5
     priority: true
   - groups:
-    - W_straight
+    - S_straight
     index: 6
     priority: true
+  - groups:
+    - W_right
+    index: 7
+    priority: true
+  - groups:
+    - W_left
+    index: 8
+    priority: true
+  - groups:
+    - W_left
+    index: 9
+    priority: true
   groups:
-  - S_straight
+  - W_right
+  - N_straight_right
   - W_left
+  - S_straight
   - N_straight
-  - W_straight
   junction: intersection
   legs:
   - groups:
     - N_straight
+    - N_straight_right
     lanes:
+    - straight_right
+    - straight
+    - straight
     - straight
     name: N
     segments:
@@ -62,16 +87,16 @@ intersections:
     - straight
     - straight
     - straight
-    - straight
     name: S
     segments:
     - S_1
   - groups:
+    - W_right
     - W_left
-    - W_straight
     lanes:
+    - right
     - left
-    - straight
+    - left
     name: W
     segments:
     - W_1

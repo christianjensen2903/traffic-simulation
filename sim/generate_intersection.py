@@ -12,32 +12,44 @@ def get_opposite_direction(direction: RoadDirection) -> RoadDirection:
     return mapping[direction]
 
 
-def get_lane_target_direction(
+def get_lane_target_directions(
     from_dir: RoadDirection, lane_type: LaneType
-) -> RoadDirection:
+) -> list[RoadDirection]:
     mapping = {
         RoadDirection.N: {
-            LaneType.LEFT: RoadDirection.W,
-            LaneType.STRAIGHT: RoadDirection.N,
-            LaneType.RIGHT: RoadDirection.E,
+            LaneType.LEFT: [RoadDirection.W],
+            LaneType.STRAIGHT: [RoadDirection.N],
+            LaneType.RIGHT: [RoadDirection.E],
+            LaneType.STRAIGHT_LEFT: [RoadDirection.W, RoadDirection.N],
+            LaneType.STRAIGHT_RIGHT: [RoadDirection.N, RoadDirection.E],
+            LaneType.ALL: [RoadDirection.W, RoadDirection.N, RoadDirection.E],
         },
         RoadDirection.S: {
-            LaneType.LEFT: RoadDirection.E,
-            LaneType.STRAIGHT: RoadDirection.S,
-            LaneType.RIGHT: RoadDirection.W,
+            LaneType.LEFT: [RoadDirection.E],
+            LaneType.STRAIGHT: [RoadDirection.S],
+            LaneType.RIGHT: [RoadDirection.W],
+            LaneType.STRAIGHT_LEFT: [RoadDirection.E, RoadDirection.S],
+            LaneType.STRAIGHT_RIGHT: [RoadDirection.S, RoadDirection.W],
+            LaneType.ALL: [RoadDirection.E, RoadDirection.S, RoadDirection.W],
         },
         RoadDirection.E: {
-            LaneType.LEFT: RoadDirection.N,
-            LaneType.STRAIGHT: RoadDirection.E,
-            LaneType.RIGHT: RoadDirection.S,
+            LaneType.LEFT: [RoadDirection.N],
+            LaneType.STRAIGHT: [RoadDirection.E],
+            LaneType.RIGHT: [RoadDirection.S],
+            LaneType.STRAIGHT_LEFT: [RoadDirection.N, RoadDirection.E],
+            LaneType.STRAIGHT_RIGHT: [RoadDirection.E, RoadDirection.S],
+            LaneType.ALL: [RoadDirection.N, RoadDirection.E, RoadDirection.S],
         },
         RoadDirection.W: {
-            LaneType.LEFT: RoadDirection.S,
-            LaneType.STRAIGHT: RoadDirection.W,
-            LaneType.RIGHT: RoadDirection.N,
+            LaneType.LEFT: [RoadDirection.S],
+            LaneType.STRAIGHT: [RoadDirection.W],
+            LaneType.RIGHT: [RoadDirection.N],
+            LaneType.STRAIGHT_LEFT: [RoadDirection.S, RoadDirection.W],
+            LaneType.STRAIGHT_RIGHT: [RoadDirection.W, RoadDirection.N],
+            LaneType.ALL: [RoadDirection.S, RoadDirection.W, RoadDirection.N],
         },
     }
-    return mapping[from_dir].get(lane_type, None)
+    return mapping[from_dir][lane_type]
 
 
 def adjust_roads_after_leg_removal(
@@ -47,15 +59,48 @@ def adjust_roads_after_leg_removal(
     for road in roads:
         new_lanes = []
         for lane in road.lanes:
-            if lane == LaneType.MAIN:
-                # For MAIN lane, determine valid turns
-                possible_lane_types = [LaneType.LEFT, LaneType.STRAIGHT, LaneType.RIGHT]
-                for lt in possible_lane_types:
-                    target_dir = get_lane_target_direction(road.direction, lt)
-                    if target_dir != removed_direction:
-                        new_lanes.append(lt)
+            if lane == LaneType.ALL:
+                if (
+                    get_lane_target_directions(road.direction, LaneType.LEFT)[0]
+                    == removed_direction
+                ):
+                    new_lanes.append(LaneType.STRAIGHT_RIGHT)
+                elif (
+                    get_lane_target_directions(road.direction, LaneType.RIGHT)[0]
+                    == removed_direction
+                ):
+                    new_lanes.append(LaneType.STRAIGHT_LEFT)
+                else:  # If opposite is removed
+                    new_lanes.append(LaneType.LEFT)
+                    new_lanes.append(LaneType.STRAIGHT)
+            elif lane == LaneType.STRAIGHT_RIGHT:
+                if (
+                    get_lane_target_directions(road.direction, LaneType.RIGHT)[0]
+                    == removed_direction
+                ):
+                    new_lanes.append(LaneType.STRAIGHT)
+                elif (
+                    get_lane_target_directions(road.direction, LaneType.STRAIGHT)[0]
+                    == removed_direction
+                ):
+                    new_lanes.append(LaneType.RIGHT)
+                else:
+                    new_lanes.append(lane)
+            elif lane == LaneType.STRAIGHT_LEFT:
+                if (
+                    get_lane_target_directions(road.direction, LaneType.LEFT)[0]
+                    == removed_direction
+                ):
+                    new_lanes.append(LaneType.STRAIGHT)
+                elif (
+                    get_lane_target_directions(road.direction, LaneType.STRAIGHT)[0]
+                    == removed_direction
+                ):
+                    new_lanes.append(LaneType.LEFT)
+                else:
+                    new_lanes.append(lane)
             else:
-                target_dir = get_lane_target_direction(road.direction, lane)
+                target_dir = get_lane_target_directions(road.direction, lane)[0]
                 if target_dir == removed_direction:
                     if lane == LaneType.LEFT or lane == LaneType.RIGHT:
                         new_lanes.append(LaneType.STRAIGHT)
@@ -66,7 +111,7 @@ def adjust_roads_after_leg_removal(
         if not new_lanes:
             possible_lane_types = [LaneType.LEFT, LaneType.STRAIGHT, LaneType.RIGHT]
             for lt in possible_lane_types:
-                target_dir = get_lane_target_direction(road.direction, lt)
+                target_dir = get_lane_target_directions(road.direction, lt)[0]
                 if target_dir != removed_direction:
                     new_lanes.append(lt)
 
@@ -91,3 +136,9 @@ def generate_intersection() -> list[Road]:
         adjust_roads_after_leg_removal(roads, removed_direction)
 
     return roads
+
+
+if __name__ == "__main__":
+    intersection = generate_intersection()
+    for road in intersection:
+        print(road.model_dump_json(indent=4))
