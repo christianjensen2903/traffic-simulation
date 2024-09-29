@@ -1,163 +1,76 @@
 intersections:
 - allowed_green_signal_combinations:
   - allowed:
-    - S_RIGHT
-    - N_STRAIGHT
-    signal: N_RIGHT
-  - allowed:
-    - S_RIGHT
-    - N_RIGHT
+    - S_STRAIGHT
     signal: N_STRAIGHT
   - allowed:
-    - S_LEFT
-    - N_RIGHT
     - N_STRAIGHT
-    signal: S_RIGHT
-  - allowed:
-    - S_RIGHT
-    signal: S_LEFT
+    signal: S_STRAIGHT
   - allowed:
     - W_STRAIGHT
-    - E_STRAIGHT
-    - W_RIGHT
-    signal: E_RIGHT
+    signal: W_LEFT
   - allowed:
-    - W_STRAIGHT
-    - E_RIGHT
-    - W_RIGHT
-    signal: E_STRAIGHT
-  - allowed:
-    - W_STRAIGHT
-    - E_RIGHT
-    - E_STRAIGHT
-    signal: W_RIGHT
-  - allowed:
-    - E_RIGHT
-    - E_STRAIGHT
-    - W_RIGHT
+    - W_LEFT
     signal: W_STRAIGHT
   amber_time: 3
   connections:
   - groups:
-    - N_right
+    - N_straight
     index: 0
     priority: true
   - groups:
-    - N_straight
+    - S_straight
     index: 1
     priority: true
   - groups:
-    - N_straight
+    - S_straight
     index: 2
     priority: true
   - groups:
-    - N_straight
+    - S_straight
     index: 3
     priority: true
   - groups:
-    - S_right
+    - S_straight
     index: 4
     priority: true
   - groups:
-    - S_left
+    - W_left
     index: 5
     priority: true
   - groups:
-    - S_left
+    - W_straight
     index: 6
     priority: true
-  - groups:
-    - S_left
-    index: 7
-    priority: true
-  - groups:
-    - S_left
-    index: 8
-    priority: true
-  - groups:
-    - E_right
-    index: 9
-    priority: true
-  - groups:
-    - E_straight
-    index: 10
-    priority: true
-  - groups:
-    - E_straight
-    index: 11
-    priority: true
-  - groups:
-    - E_straight
-    index: 12
-    priority: true
-  - groups:
-    - E_straight
-    index: 13
-    priority: true
-  - groups:
-    - W_right
-    index: 14
-    priority: true
-  - groups:
-    - W_straight
-    index: 15
-    priority: true
-  - groups:
-    - W_straight
-    index: 16
-    priority: true
   groups:
-  - S_left
-  - W_straight
+  - S_straight
+  - W_left
   - N_straight
-  - S_right
-  - E_right
-  - N_right
-  - W_right
-  - E_straight
+  - W_straight
   junction: intersection
   legs:
   - groups:
-    - N_right
     - N_straight
     lanes:
-    - right
-    - straight
-    - straight
     - straight
     name: N
     segments:
     - N_1
   - groups:
-    - S_left
-    - S_right
+    - S_straight
     lanes:
-    - right
-    - left
-    - left
-    - left
-    - left
+    - straight
+    - straight
+    - straight
+    - straight
     name: S
     segments:
     - S_1
   - groups:
-    - E_right
-    - E_straight
-    lanes:
-    - right
-    - straight
-    - straight
-    - straight
-    - straight
-    name: E
-    segments:
-    - E_1
-  - groups:
+    - W_left
     - W_straight
-    - W_right
     lanes:
-    - right
-    - straight
+    - left
     - straight
     name: W
     segments:

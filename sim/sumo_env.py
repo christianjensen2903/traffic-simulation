@@ -22,6 +22,24 @@ from dtos import (
     AllowedGreenSignalCombinationDto,
 )
 import gymnasium as gym
+from pydantic import BaseModel
+
+if "SUMO_HOME" in os.environ:
+    tools = os.path.join(os.environ["SUMO_HOME"], "tools")
+    sys.path.append(tools)
+
+
+class InternalLeg(BaseModel):
+    name: str
+    lanes: list[str]
+    groups: list[str]
+    segments: list[str]
+
+
+class Connection(BaseModel):
+    index: int
+    groups: list[str]
+    priority: bool
 
 
 class CustomEnv(gym.Env):
@@ -92,13 +110,46 @@ class CustomEnv(gym.Env):
             low=0, high=255, shape=(HEIGHT, WIDTH, N_CHANNELS), dtype=np.uint8
         )
 
+    def load_config(self, path: str, test_duration_seconds: int):
+        with open(f"{path}/configuration.yaml", "r") as cfile:
+            config = yaml.safe_load(cfile)["intersections"][0]
+
+        self._legs = [InternalLeg(**leg) for leg in config["legs"]]
+        self._connections = [
+            Connection(
+                index=conn["index"],
+                groups=conn["groups"],
+                priority=conn["priority"],
+            )
+            for conn in config["connections"]
+        ]
+
+        self._allowed_green_signal_combinations = [
+            AllowedGreenSignalCombinationDto(
+                name=comb["signal"][0], groups=comb["allowed"]
+            )
+            for comb in config["allowed_green_signal_combinations"]
+        ]
+
+        self._junction = config["junction"]
+        self._signal_groups = config["groups"]
+        self._game_ticks = 0
+        self._total_score = 0
+        self._test_duration_seconds = test_duration_seconds
+        self._maxdistance = 100
+        self._random_state = False
+
+    return None
+
     def step(self, action):
-        ...
+        pass
         return observation, reward, done, info
 
     def reset(self):
-        ...
         return observation  # reward, done, info can't be included
 
-    def render(self, mode="human"): ...
-    def close(self): ...
+    def render(self, mode="human"):
+        pass
+
+    def close(self):
+        pass
