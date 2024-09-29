@@ -259,25 +259,25 @@ class TrafficSimulationEnvHandler:
             desired_next_groups[group] = color.lower()
 
         # Collect green lights for conflict checking
-        green_lights = [
-            group for group, color in desired_next_groups.items() if color == "green"
-        ]
+        # green_lights = [
+        #     group for group, color in desired_next_groups.items() if color == "green"
+        # ]
 
         # Check for conflicts
-        for group in green_lights:
-            for other_group in green_lights:
-                if group == other_group:
-                    continue
-                if (
-                    other_group
-                    not in self.allowed_green_signal_combinations_lookup.get(group, [])
-                ):
-                    logic_errors.append(
-                        f"Invalid green light combination at time step {self.get_simulation_ticks()}: {group} and {other_group}."
-                    )
-                    # Optionally, you can remove one of the conflicting groups
-                    # desired_next_groups[group] = 'red'
-                    # break
+        # for group in green_lights:
+        #     for other_group in green_lights:
+        #         if group == other_group:
+        #             continue
+        #         if (
+        #             other_group
+        #             not in self.allowed_green_signal_combinations_lookup.get(group, [])
+        #         ):
+        #             logic_errors.append(
+        #                 f"Invalid green light combination at time step {self.get_simulation_ticks()}: {group} and {other_group}."
+        #             )
+        #             # Optionally, you can remove one of the conflicting groups
+        #             desired_next_groups[group] = 'red'
+        #             break
 
         # Update self.next_groups with desired colors
         for group, color in desired_next_groups.items():

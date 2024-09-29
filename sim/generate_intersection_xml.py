@@ -23,6 +23,9 @@ speed_limits = {
 }
 
 
+# TODO: Vary the positions of the lanes and the amount of outgoing lanes
+
+
 def generate_intersection_xml(path: str):
     # Load the SUMO network
     net_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -355,6 +358,8 @@ def generate_intersection_xml(path: str):
         "-s" f"{path}/intersection.net.xml",
         "-o",
         f"{path}/intersection.net.xml",
+        "--no-internal-links",
+        "false",
     ]
 
     subprocess.run(cmd)
@@ -367,4 +372,4 @@ def generate_intersection_xml(path: str):
 
 
 if __name__ == "__main__":
-    generate_intersection_xml(path=f"models/{2}")
+    generate_intersection_xml(path=f"intersections/{2}")

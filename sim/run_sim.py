@@ -9,7 +9,7 @@ def run_game():
 
     test_duration_seconds = 600
     is_random = True
-    configuration_file = "models/2/configuration.yaml"
+    configuration_file = "intersections/2/configuration.yaml"
     start_time = time()
 
     input_queue = Queue()
@@ -57,11 +57,11 @@ def run_game():
         prediction["signals"] = []
 
         # Update the desired phase of the traffic lights
-        next_signals = {signal.name: "red" for signal in state.signals}
+        next_signals = {signal.name: "green" for signal in state.signals}
         # Pick a random signal and set it to green
-        random_signal = random.choice(state.signals)
-        print(f"Changing {random_signal.name} to green")
-        next_signals[random_signal.name] = "green"
+        # random_signal = random.choice(state.signals)
+        # print(f"Changing {random_signal.name} to green")
+        # next_signals[random_signal.name] = "green"
 
         # next_signals = {}
         current_tick = state.simulation_ticks
