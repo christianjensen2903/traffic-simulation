@@ -1,8 +1,9 @@
-sumolib
-traci
-uvicorn
-fastapi
-loguru
-gunicorn
-pyyaml
-gymnasium
+sumolib==1.20.0
+traci==1.20.0
+uvicorn==0.30.6
+fastapi==0.115.0
+loguru==0.7.2
+gunicorn==23.0.0
+gymnasium==0.29.1
+PyYAML==6.0.2
+stable_baselines3==2.3.2
