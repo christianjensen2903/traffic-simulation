@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from enum import Enum
 from typing import Literal
 import numpy as np
+from generate_road import LaneType
 from generate_intersection_xml import generate_intersection_xml
 
 if "SUMO_HOME" in os.environ:
@@ -26,8 +27,15 @@ class Connection(BaseModel):
 class TrafficColor(Enum):
     RED = "r"
     AMBER = "y"
-    REDAMBER = "y"
+    REDAMBER = "u"
     GREEN = "G"
+
+
+class InternalLeg(BaseModel):
+    name: str
+    lanes: list[str]
+    groups: list[str]
+    segments: list[str]
 
 
 class SignalState(BaseModel):
@@ -35,28 +43,55 @@ class SignalState(BaseModel):
     time: int = 0
 
 
-class CustomEnv(gym.Env):
+class SumoEnv(gym.Env):
     """Custom Environment that follows gym interface"""
 
     metadata = {"render.modes": ["human"]}
 
     def __init__(self, config_path: str, max_simulation_time: int = 1000):
-        super(CustomEnv, self).__init__()
+        super(SumoEnv, self).__init__()
         self.max_simulation_time = max_simulation_time
         self.path = config_path
         self.load_config(config_path)
 
-        self.action_space = spaces.Discrete(len(self._connections))
-        self.observation_space = spaces.Sequence(
-            spaces.Dict(
-                {
-                    "speed": spaces.Box(low=0, high=30, shape=(1,), dtype=np.float32),
-                    "distance_to_stop": spaces.Box(
-                        low=0, high=self.max_distance, shape=(1,), dtype=np.float32
+        # Max 4 incoming roads. Has to be flattened
+        self.action_space = spaces.MultiBinary(4 * len(LaneType))
+
+        self.vehicle_space = spaces.Dict(
+            {
+                "speed": spaces.Box(low=0, high=30, shape=(1,), dtype=np.float32),
+                "distance": spaces.Box(
+                    low=0, high=self.max_distance, shape=(1,), dtype=np.float32
+                ),
+            }
+        )
+
+        self.vehicles_space = spaces.Dict(
+            {leg.name: self.vehicle_space for leg in self.legs}
+        )
+
+        self.signal_space = spaces.Dict(
+            {
+                "color": spaces.Text(max_length=1),
+                "time": spaces.Box(
+                    low=0,
+                    high=max(
+                        [self.amber_time, self.red_amber_time, self.min_green_time]
                     ),
-                    "leg": spaces.Text(max_length=100),
-                },
-            )
+                    shape=(1,),
+                    dtype=np.float32,
+                ),
+            }
+        )
+        self.signals_space = spaces.Dict(
+            {group: self.signal_space for group in self.signal_groups}
+        )
+        # TODO: Add lanes/legs information
+        self.observation_space = spaces.Dict(
+            {
+                "vehicles": self.vehicles_space,
+                "signals": self.signals_space,
+            }
         )
 
         self._ticks = 0
@@ -75,21 +110,24 @@ class CustomEnv(gym.Env):
             )
             for conn in config["connections"]
         ]
-        self._signal_groups: list[str] = config["groups"]
-        self._signal_states = {group: SignalState() for group in self._signal_groups}
+        self.legs = [InternalLeg(**leg) for leg in config["legs"]]
+        self.signal_groups: list[str] = config["groups"]
+        self._signal_states = {group: SignalState() for group in self.signal_groups}
         self.junction = config["junction"]
 
         self.max_distance = 100
+        self.min_lanes = 1
+        self.max_lanes = 6
         self._random_state = False
-        self._amber_time = 4
-        self._red_amber_time = 2
-        self._min_green_time = 6
+        self.amber_time = 4
+        self.red_amber_time = 2
+        self.min_green_time = 6
 
         self._delay_penalty = 1.5
         self._delay_penality_threshold = 90
         self._warm_up_ticks = 10
 
-    def _distance_to_stop(self, vehicle) -> float | None:
+    def _distance(self, vehicle) -> float | None:
         for intersection, _, distance, _ in self._traci_connection.vehicle.getNextTLS(
             vehicle
         ):
@@ -114,23 +152,40 @@ class CustomEnv(gym.Env):
                     self._vehicle_waiting_times[vehicle] = 0
                 self._vehicle_waiting_times[vehicle] += 1
 
-    def _get_observation(self) -> dict:
-        """Gets a list of all vehicles and their states"""
-        observation = []
+    def _get_vehicles(self) -> list[dict]:
+        vehicles = {leg.name: [] for leg in self.legs}
         for vehicle in self._traci_connection.vehicle.getIDList():
-            distance_to_stop = self._distance_to_stop(vehicle)
-            if distance_to_stop is None:
+            distance = self._distance(vehicle)
+            if distance is None:
                 continue
             speed = traci.vehicle.getSpeed(vehicle)
             leg = traci.vehicle.getRoadID(vehicle)
-            observation.append(
+            vehicles[leg].append(
                 {
                     "speed": speed,
-                    "distance_to_stop": distance_to_stop,
-                    "leg": leg,
+                    "distance": distance,
                 }
             )
-        return observation
+        return vehicles
+
+    def _get_signal_states(self) -> list[dict]:
+        return {
+            group: {
+                "color": state.color.value,
+                "time": min(state.time, self.signal_space["time"].high[0]),
+            }
+            for group, state in self._signal_states.items()
+        }
+
+    def _get_observation(self) -> dict:
+        """Gets a list of all vehicles and their states"""
+        vehicles = self._get_vehicles()
+        signals = self._get_signal_states()
+
+        return {
+            "vehicles": vehicles,
+            "signals": signals,
+        }
 
     def _get_phase_string(self) -> str:
         phase_string = ""
@@ -147,19 +202,19 @@ class CustomEnv(gym.Env):
             if state.color == TrafficColor.RED and desired_color == TrafficColor.GREEN:
                 state.color = TrafficColor.AMBER
                 state.time = 0
-            elif state.color == TrafficColor.AMBER and state.time >= self._amber_time:
+            elif state.color == TrafficColor.AMBER and state.time >= self.amber_time:
                 state.color = TrafficColor.RED
                 state.time = 0
             elif (
                 state.color == TrafficColor.REDAMBER
-                and state.time >= self._red_amber_time
+                and state.time >= self.red_amber_time
             ):
                 state.color = TrafficColor.GREEN
                 state.time = 0
             elif (
                 state.color == TrafficColor.GREEN
                 and desired_color == TrafficColor.RED
-                and state.time >= self._min_green_time
+                and state.time >= self.min_green_time
             ):
                 state.color = TrafficColor.REDAMBER
                 state.time = 0
@@ -172,19 +227,36 @@ class CustomEnv(gym.Env):
             self.junction, phase_string
         )
 
+    def _index_to_direction(self, index: int) -> str:
+        """Get the direction from the index"""
+        return ["N", "E", "S", "W"][index]
+
+    def _index_to_lane_type(self, index: int) -> LaneType:
+        """Get the lane type from the index"""
+        return list(LaneType)[index]
+
     def _parse_action(
-        self, action: int
+        self, action: np.ndarray
     ) -> dict[str, Literal[TrafficColor.GREEN, TrafficColor.RED]]:
         """Parse the action into a dictionary"""
         action_dict = {}
-        for i, grp in enumerate(self._signal_groups):
-            action_dict[grp] = TrafficColor.GREEN if action[i] else TrafficColor.RED
+        for i, a in enumerate(action):
+            direction_index = i // len(LaneType)
+            lane_index = i % len(LaneType)
+            direction = self._index_to_direction(direction_index)
+            lane_type = self._index_to_lane_type(lane_index)
+            group = f"{direction}_{lane_type.value}"
+            if group in self.signal_groups:
+                action_dict[group] = TrafficColor.GREEN if a else TrafficColor.RED
         return action_dict
 
-    def step(self, action: list[bool]):
-        """Action describes what if the traffic light should be turned green or not. The order is the same as the groups"""
-
-        assert len(action) == len(self._signal_groups)
+    def step(self, action: np.ndarray):
+        """
+        Action describes if the traffic light should be turned green or not.
+        The first dimension describes the direction. 0: N, 1: E, 2: S, 3: W (clockwise)
+        The second dimension describes the lane type.
+        """
+        assert action.shape == self.action_space.shape
         assert self._traci_connection is not None
 
         parsed_action = self._parse_action(action)
@@ -197,10 +269,12 @@ class CustomEnv(gym.Env):
         reward = -self._calc_loss()
         done = self._ticks >= self.max_simulation_time
 
-        return observation, reward, done, {}  # No extra info
+        return observation, reward, done, None, {}  # No extra info or truncated
 
-    def reset(self):
-        generate_intersection_xml(path=self.path)
+    def reset(self, seed=None, options=None):
+        generate_intersection_xml(
+            path=self.path, min_lanes=self.min_lanes, max_lanes=self.max_lanes
+        )
         self.load_config(self.path)
 
         sumoBinary = checkBinary("sumo-gui")
@@ -227,7 +301,7 @@ class CustomEnv(gym.Env):
         for i in range(self._warm_up_ticks):
             self._traci_connection.simulationStep()
 
-        return self._get_observation()
+        return self._get_observation(), None  # No extra info
 
     def render(self, mode="human"):
         pass
@@ -239,11 +313,11 @@ class CustomEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = CustomEnv(config_path="intersections/2")
-    obs = env.reset()
+    env = SumoEnv(config_path="intersections/2")
+    env.reset()
     done = False
     while not done:
-        action = [True] * len(env._signal_groups)
-        obs, reward, done, _ = env.step(action)
+        action = [True] * len(env.signal_groups)
+        obs, reward, done, _, _ = env.step(action)
         print(f"Reward: {reward}")
     env.close()

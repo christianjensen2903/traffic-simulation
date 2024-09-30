@@ -491,7 +491,7 @@ class TrafficSimulationEnvHandler:
                 self._test_duration_seconds + self.warm_up_ticks
             ):
                 self._run_one_tick()
-                sleep(1)
+                sleep(0.5)
             else:
                 self._run_one_tick(terminates_now=True)
                 break

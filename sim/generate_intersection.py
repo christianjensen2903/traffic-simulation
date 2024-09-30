@@ -118,7 +118,7 @@ def adjust_roads_after_leg_removal(
         road.lanes = new_lanes
 
 
-def generate_intersection() -> list[Road]:
+def generate_intersection(min_lanes: int, max_lanes: int = 6) -> list[Road]:
     roads: list[Road] = []
     for direction in [
         RoadDirection.N,
@@ -126,7 +126,7 @@ def generate_intersection() -> list[Road]:
         RoadDirection.E,
         RoadDirection.W,
     ]:
-        roads.append(generate_random_road(direction))
+        roads.append(generate_random_road(direction, min_lanes, max_lanes))
 
     # With 50% probability remove one of the roads
     if random.random() < 0.5:

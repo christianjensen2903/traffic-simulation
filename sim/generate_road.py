@@ -17,7 +17,7 @@ class RoadDirection(Enum):
 
 
 class LaneType(Enum):
-    ALL = "main"
+    ALL = "all"
     STRAIGHT = "straight"
     LEFT = "left"
     RIGHT = "right"
@@ -86,11 +86,14 @@ def get_lane_type_probabilities(
         }
 
 
-def generate_random_road(direction: RoadDirection) -> Road:
+def generate_random_road(
+    direction: RoadDirection, min_lanes: int = 1, max_lanes: int = 6
+) -> Road:
     """Generate a random road for the given direction"""
+    assert min_lanes <= max_lanes
     road_type = random.choice(list(RoadType))
 
-    num_lanes = random.randint(1, 5)
+    num_lanes = random.randint(min_lanes, max_lanes)
 
     lanes = []
 
