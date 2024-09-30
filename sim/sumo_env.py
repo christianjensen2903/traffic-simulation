@@ -259,6 +259,8 @@ class SumoEnv(gym.Env):
         assert action.shape == self.action_space.shape
         assert self._traci_connection is not None
 
+        loss_before = self._calc_loss()
+
         parsed_action = self._parse_action(action)
         self._update_traffic_lights(parsed_action)
 
@@ -266,7 +268,9 @@ class SumoEnv(gym.Env):
         self._update_waiting_times()
         self._ticks += 1
         observation = self._get_observation()
-        reward = -self._calc_loss()
+        loss_after = self._calc_loss()
+        reward = loss_before - loss_after  # - delta_loss
+
         done = self._ticks >= self.max_simulation_time
 
         return observation, reward, done, None, {}  # No extra info or truncated
