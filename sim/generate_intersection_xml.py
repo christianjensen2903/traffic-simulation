@@ -57,7 +57,7 @@ def generate_intersection_xml(
     """
 
     INTERSECTION_OFFSET = 15
-    ROAD_LENGTH = 100
+    ROAD_LENGTH = 150  # Done to ensure road are long enough
     LANE_WIDTH = 3.2
     DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
 
