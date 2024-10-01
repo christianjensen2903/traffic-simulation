@@ -116,8 +116,6 @@ class SumoEnv(gym.Env):
         self.junction = config["junction"]
 
         self.max_distance = 100
-        self.min_lanes = 1
-        self.max_lanes = 6
         self._random_state = False
         self.amber_time = 4
         self.red_amber_time = 2
@@ -127,7 +125,7 @@ class SumoEnv(gym.Env):
         self._delay_penality_threshold = 90
         self._warm_up_ticks = 10
 
-    def _distance(self, vehicle) -> float | None:
+    def _get_distance_to_stop(self, vehicle) -> float | None:
         for intersection, _, distance, _ in self._traci_connection.vehicle.getNextTLS(
             vehicle
         ):
@@ -143,30 +141,35 @@ class SumoEnv(gym.Env):
         ]
         return sum(losses)
 
-    def _update_waiting_times(self) -> None:
-        """Update the waiting times for all vehicles"""
-        for vehicle in self._traci_connection.vehicle.getIDList():
-            vehicle_speed = abs(traci.vehicle.getSpeed(vehicle))
-            if vehicle_speed < 0.5:  # Vehicle travels at less than 1.8 km/h
-                if vehicle not in self._vehicle_waiting_times:
-                    self._vehicle_waiting_times[vehicle] = 0
-                self._vehicle_waiting_times[vehicle] += 1
+    def _get_and_update_vehicles(self) -> list[dict]:
+        """Get all vehicles and update the waiting times"""
 
-    def _get_vehicles(self) -> list[dict]:
-        vehicles = {leg.name: [] for leg in self.legs}
-        for vehicle in self._traci_connection.vehicle.getIDList():
-            distance = self._distance(vehicle)
-            if distance is None:
-                continue
-            speed = traci.vehicle.getSpeed(vehicle)
-            leg = traci.vehicle.getRoadID(vehicle)
-            vehicles[leg].append(
-                {
-                    "speed": speed,
-                    "distance": distance,
-                }
-            )
-        return vehicles
+        # Not two seperate functions for efficiency
+
+        observed_vehicles = {}
+        for leg in self.legs:
+            observed_vehicles[leg.name] = []
+
+            for segment in leg.segments:
+                vehicles = list(traci.edge.getLastStepVehicleIDs(segment))
+                for vehicle in vehicles:
+                    distance = self._get_distance_to_stop(vehicle)
+                    if distance is None or distance > self.max_distance:
+                        continue
+                    vehicle_speed = abs(traci.vehicle.getSpeed(vehicle))
+                    observed_vehicles[leg.name].append(
+                        {
+                            "speed": vehicle_speed,
+                            "distance": distance,
+                        }
+                    )
+
+                    if vehicle_speed < 0.5:  # Vehicle travels at less than 1.8 km/h
+                        if vehicle not in self._vehicle_waiting_times:
+                            self._vehicle_waiting_times[vehicle] = 0
+                        self._vehicle_waiting_times[vehicle] += 1
+
+        return observed_vehicles
 
     def _get_signal_states(self) -> list[dict]:
         return {
@@ -179,7 +182,7 @@ class SumoEnv(gym.Env):
 
     def _get_observation(self) -> dict:
         """Gets a list of all vehicles and their states"""
-        vehicles = self._get_vehicles()
+        vehicles = self._get_and_update_vehicles()
         signals = self._get_signal_states()
 
         return {
@@ -265,7 +268,6 @@ class SumoEnv(gym.Env):
         self._update_traffic_lights(parsed_action)
 
         self._traci_connection.simulationStep()
-        self._update_waiting_times()
         self._ticks += 1
         observation = self._get_observation()
         loss_after = self._calc_loss()
@@ -276,9 +278,9 @@ class SumoEnv(gym.Env):
         return observation, reward, done, None, {}  # No extra info or truncated
 
     def reset(self, seed=None, options=None):
-        generate_intersection_xml(
-            path=self.path, min_lanes=self.min_lanes, max_lanes=self.max_lanes
-        )
+
+        # TODO: Make random flow and select random config
+
         self.load_config(self.path)
 
         sumoBinary = checkBinary("sumo-gui")
@@ -317,11 +319,13 @@ class SumoEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = SumoEnv(config_path="intersections/2")
+    env = SumoEnv(config_path="intersections/3")
     env.reset()
     done = False
     while not done:
-        action = [True] * len(env.signal_groups)
+        action = np.random.randint(0, 2, size=env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
+        # press any key to continue
+        input()
         print(f"Reward: {reward}")
     env.close()

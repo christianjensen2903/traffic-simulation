@@ -1,0 +1,411 @@
+{
+  "vehicles": [
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 46.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 38.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 23.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 76.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 23.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 76.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 46.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 38.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 76.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 46.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 38.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 23.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "B2"
+    }
+  ],
+  "total_score": 126605.9479493715,
+  "simulation_ticks": 310,
+  "signals": [
+    {
+      "name": "A1",
+      "state": "green"
+    },
+    {
+      "name": "A1RightTurn",
+      "state": "red"
+    },
+    {
+      "name": "A1LeftTurn",
+      "state": "red"
+    },
+    {
+      "name": "A2",
+      "state": "red"
+    },
+    {
+      "name": "A2RightTurn",
+      "state": "red"
+    },
+    {
+      "name": "A2LeftTurn",
+      "state": "red"
+    },
+    {
+      "name": "B1",
+      "state": "red"
+    },
+    {
+      "name": "B1RightTurn",
+      "state": "red"
+    },
+    {
+      "name": "B2",
+      "state": "red"
+    }
+  ],
+  "signal_groups": [
+    "A1",
+    "A1RightTurn",
+    "A1LeftTurn",
+    "A2",
+    "A2RightTurn",
+    "A2LeftTurn",
+    "B1",
+    "B1RightTurn",
+    "B2"
+  ],
+  "legs": [
+    {
+      "name": "A1",
+      "lanes": ["Left", "Main", "Right"],
+      "signal_groups": ["A1", "A1RightTurn", "A1LeftTurn"]
+    },
+    {
+      "name": "A2",
+      "lanes": ["Left", "Main", "Right"],
+      "signal_groups": ["A2", "A2RightTurn", "A2LeftTurn"]
+    },
+    {
+      "name": "B1",
+      "lanes": ["Main", "Right"],
+      "signal_groups": ["B1", "B1RightTurn"]
+    },
+    {
+      "name": "B2",
+      "lanes": ["Main"],
+      "signal_groups": ["B2"]
+    }
+  ],
+  "allowed_green_signal_combinations": [
+    {
+      "name": "A1",
+      "groups": ["A1LeftTurn", "A2", "A1RightTurn"]
+    },
+    {
+      "name": "A1LeftTurn",
+      "groups": ["A1", "A2LeftTurn"]
+    },
+    {
+      "name": "A1RightTurn",
+      "groups": ["A1", "A2RightTurn", "B1RightTurn"]
+    },
+    {
+      "name": "A2",
+      "groups": ["A2LeftTurn", "A2RightTurn", "A1"]
+    },
+    {
+      "name": "A2RightTurn",
+      "groups": ["A2", "A2LeftTurn", "B2", "A1RightTurn", "B1RightTurn"]
+    },
+    {
+      "name": "B1",
+      "groups": ["B1RightTurn", "B2"]
+    },
+    {
+      "name": "B1RightTurn",
+      "groups": ["B1", "A2RightTurn", "A1RightTurn"]
+    },
+    {
+      "name": "B2",
+      "groups": ["B1"]
+    }
+  ]
+}
