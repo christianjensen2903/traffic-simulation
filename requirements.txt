@@ -9,3 +9,4 @@ PyYAML==6.0.2
 stable_baselines3==2.3.2
 tqdm==4.66.5
 wandb==0.18.2
+sb3_contrib==2.3.0

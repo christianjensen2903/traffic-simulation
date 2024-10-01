@@ -267,6 +267,31 @@ class SumoEnv(gym.Env):
                 action_dict[group] = TrafficColor.GREEN if a else TrafficColor.RED
         return action_dict
 
+    def action_masks(self) -> np.ndarray:
+        """
+        Get the action masks for the environment.
+        """
+
+        mask = np.zeros(self.action_space.shape, dtype=np.float32)
+        for i in range(self.action_space.shape[0]):
+            for j in range(self.action_space.shape[1]):
+                direction = self._index_to_direction(i)
+                lane_type = self._index_to_lane_type(j)
+                group = f"{direction}_{lane_type.value}"
+
+                # Make 1 if the group is red
+                # Make 1 if green and above min green time
+                state = self._signal_states[group]
+                if state.color == TrafficColor.RED:
+                    mask[i, j] = 1
+                elif (
+                    state.color == TrafficColor.GREEN
+                    and state.time >= self.min_green_time
+                ):
+                    mask[i, j] = 1
+
+        return mask
+
     def step(self, action: np.ndarray):
         """
         Action describes if the traffic light should be turned green or not.

@@ -15,8 +15,9 @@ from stable_baselines3.common.callbacks import (
 from wandb.integration.sb3 import WandbCallback
 import wandb
 from stable_baselines3.common.vec_env import SubprocVecEnv
+from sb3_contrib import MaskablePPO
 
-LOG_WANDB = True
+LOG_WANDB = False
 
 if LOG_WANDB:
     wandb.init(project="sumo-rl")
