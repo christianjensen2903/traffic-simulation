@@ -185,16 +185,16 @@ class DiscritizeSignal(gym.ObservationWrapper):
 
 
 if __name__ == "__main__":
-    env = SumoEnv(intersection_path="intersections/2")
+    env = SumoEnv(intersection_path="intersections")
     env = BinVehicles(env)
     env = DiscritizeSignal(env)
     obs, _ = env.reset()
     done = False
     while not done:
-        action = [True] * len(env.signal_groups)
+        action = np.ones(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
         print(obs)
+        # input()
         print(f"Reward: {reward}")
-        time.sleep(3)
 
     env.close()

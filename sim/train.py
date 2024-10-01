@@ -13,70 +13,38 @@ from stable_baselines3.common.callbacks import (
     CallbackList,
 )
 from wandb.integration.sb3 import WandbCallback
+import wandb
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
-env = SumoEnv(intersection_path="intersections")
+LOG_WANDB = True
 
-env = BinVehicles(env)
-env = DiscritizeSignal(env)
-
-model = PPO.load("ppo_sumo")
-
-
-def play_game():
-    env.render()
-    obs, info = env.reset()
-    done = False
-    cum_reward = 0
-    while not done:
-        action = np.ones(env.action_space.shape)
-        action, _states = model.predict(obs, deterministic=True)
-        obs, reward, done, info, _ = env.step(action)
-        cum_reward += reward
-
-    env.toggle_visualize()
-
-    print(f"Total reward: {cum_reward}")
-    return cum_reward
+if LOG_WANDB:
+    wandb.init(project="sumo-rl")
 
 
-class PlayCallback(BaseCallback):
+if __name__ == "__main__":
 
-    def __init__(self, verbose: int = 0):
-        super().__init__(verbose)
+    def create_env():
+        env = SumoEnv(intersection_path="intersections")
+        env = BinVehicles(env)
+        env = DiscritizeSignal(env)
 
-    def _on_step(self) -> bool:
-        play_game()
+        return env
 
-        return True
+    env = SubprocVecEnv([create_env for _ in range(4)])
 
+    if LOG_WANDB:
+        callback = WandbCallback()
+    else:
+        callback = None
 
-model = PPO("MultiInputPolicy", env, verbose=1)
-model.learn(
-    total_timesteps=100000,
-    log_interval=3,
-    progress_bar=True,
-    callback=EveryNTimesteps(
-        n_steps=5000, callback=CallbackList([PlayCallback(), WandbCallback()])
-    ),
-)
+    model = PPO("MultiInputPolicy", env, verbose=1)
+    model.learn(
+        total_timesteps=100000,
+        log_interval=3,
+        progress_bar=True,
+        callback=callback,
+    )
 
-# Save the model
-model.save("ppo_sumo")
-
-# Load the model
-# model = PPO.load("ppo_sumo")
-
-
-n_games = 1
-
-print("Playing games...")
-
-rewards = []
-for i in range(n_games):
-    start_time = time.time()
-    cum_reward = play_game()
-    end_time = time.time()
-    rewards.append(cum_reward)
-    print(f"Game {i+1}: {cum_reward}")
-
-print(f"Average reward: {np.mean(rewards)}")
+    # ave the model
+    model.save("ppo_sumo")

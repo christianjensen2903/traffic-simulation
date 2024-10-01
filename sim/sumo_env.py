@@ -285,7 +285,7 @@ class SumoEnv(gym.Env):
         self._ticks += 1
         observation = self._get_observation()
         loss_after = self._calc_loss()
-        reward = loss_before - loss_after  # - delta_loss
+        reward = float(loss_before - loss_after)  # - delta_loss
 
         done = self._ticks >= self.max_simulation_time
 
@@ -294,7 +294,8 @@ class SumoEnv(gym.Env):
     def reset(self, seed=None, options=None):
 
         if self._random_state:
-            choice = random.choice([3, 4])  # Either of the two val intersections
+            # choice = random.choice([3, 4])  # Either of the two val intersections
+            choice = 3
             path = f"intersections/{choice}"
             generate_random_flow(self.intersection_path, roads=self.roads)
         else:
@@ -329,7 +330,7 @@ class SumoEnv(gym.Env):
         for i in range(self._warm_up_ticks):
             self._traci_connection.simulationStep()
 
-        return self._get_observation(), None  # No extra info
+        return self._get_observation(), {}  # No extra info
 
     def toggle_visualize(self):
         self.visualize = not self.visualize
@@ -345,12 +346,14 @@ class SumoEnv(gym.Env):
 
 if __name__ == "__main__":
     env = SumoEnv(intersection_path="intersections")
+
     env.visualize = True
     env.reset()
     done = False
     while not done:
         action = np.random.randint(0, 2, size=env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
+        print(reward)
         # press any key to continue
         # input()
         print(f"Reward: {reward}")
