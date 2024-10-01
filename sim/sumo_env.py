@@ -10,8 +10,9 @@ from pydantic import BaseModel
 from enum import Enum
 from typing import Literal
 import numpy as np
-from generate_road import LaneType
-from generate_intersection_xml import generate_intersection_xml
+from generate_road import LaneType, Road, RoadDirection
+from generate_random_flow import generate_random_flow
+import random
 
 if "SUMO_HOME" in os.environ:
     tools = os.path.join(os.environ["SUMO_HOME"], "tools")
@@ -48,11 +49,11 @@ class SumoEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, config_path: str, max_simulation_time: int = 1000):
+    def __init__(self, intersection_path: str, max_simulation_time: int = 1000):
         super(SumoEnv, self).__init__()
         self.max_simulation_time = max_simulation_time
-        self.path = config_path
-        self.load_config(config_path)
+        self.intersection_path = intersection_path
+        self.load_config(f"{intersection_path}/2")
 
         # Max 4 incoming roads. Has to be flattened
         self.action_space = spaces.MultiBinary(4 * len(LaneType))
@@ -116,10 +117,17 @@ class SumoEnv(gym.Env):
         self.junction = config["junction"]
 
         self.max_distance = 100
-        self._random_state = False
+        self._random_state = True
         self.amber_time = 4
         self.red_amber_time = 2
         self.min_green_time = 6
+        self.roads = [
+            Road(
+                direction=RoadDirection(f'{leg.name.split("_")[0]}'),
+                lanes=[LaneType(lane) for lane in leg.lanes],
+            )
+            for leg in self.legs
+        ]
 
         self._delay_penalty = 1.5
         self._delay_penality_threshold = 90
@@ -280,9 +288,14 @@ class SumoEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
 
-        # TODO: Make random flow and select random config
+        if self._random_state:
+            choice = random.choice([3, 4])  # Either of the two val intersections
+            path = f"intersections/{choice}"
+            generate_random_flow(self.intersection_path, roads=self.roads)
+        else:
+            path = f"intersections/1"
 
-        self.load_config(self.path)
+        self.load_config(path)
 
         sumoBinary = checkBinary("sumo-gui")
 
@@ -293,7 +306,7 @@ class SumoEnv(gym.Env):
             "--start",
             "--quit-on-end",
             "-c",
-            f"{self.path}/net.sumocfg",
+            f"{path}/net.sumocfg",
         ]
 
         if self._random_state:
@@ -320,7 +333,7 @@ class SumoEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = SumoEnv(config_path="intersections/4")
+    env = SumoEnv(intersection_path="intersections")
     env.reset()
     done = False
     while not done:

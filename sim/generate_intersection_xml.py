@@ -11,10 +11,16 @@ from generate_intersection import (
 import math
 from environment import InternalLeg, Connection
 from allowed_signal_calculator import generate_allowed_combinations
+from generate_random_flow import generate_random_flow
 import yaml
 import os
 import subprocess
 
+
+INTERSECTION_OFFSET = 15
+ROAD_LENGTH = 150  # Done to ensure road are long enough
+LANE_WIDTH = 3.2
+DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
 
 speed_limits = {
     RoadType.HIGHWAY_PRIMARY: 27.78,
@@ -23,7 +29,87 @@ speed_limits = {
 }
 
 
-# TODO: Vary the positions of the lanes and the amount of outgoing lanes
+def shape_to_string(shape: list[tuple[float, float]]) -> str:
+    return " ".join([f"{x:.2f},{y:.2f}" for x, y in shape])
+
+
+def rotate_point_clockwise(point, angle_degrees):
+    angle_radians = math.radians(angle_degrees)
+    x, y = point
+    x_new = x * math.cos(angle_radians) + y * math.sin(angle_radians)
+    y_new = -x * math.sin(angle_radians) + y * math.cos(angle_radians)
+    return (x_new, y_new)
+
+
+def rotate_shape(shape, angle_degrees):
+    return [rotate_point_clockwise(point, angle_degrees) for point in shape]
+
+
+def generate_edge_xml(
+    edge_id: str,
+    from_node: str,
+    to_node: str,
+    shape: list[tuple[int, int]],
+    road: Road,
+    degrees: int = 0,
+) -> str:
+
+    xml = f"""
+    <edge id="{edge_id}" from="{from_node}" to="{to_node}" name="{edge_id}" priority="11" type="{road.road_type.value}" spreadType="center" shape="{shape_to_string(shape)}">"""
+    for i, lane in enumerate(road.lanes):
+        lane_shape = [
+            (shape[0][0] + i * LANE_WIDTH, shape[0][1]),
+            (shape[1][0] + i * LANE_WIDTH, shape[1][1]),
+        ]
+        lane_shape = rotate_shape(lane_shape, degrees)
+        xml += f"""
+        <lane id="{edge_id}_{i}" index="{i}" disallow="{DISALLOW}" speed="{speed_limits[road.road_type]}" length="{ROAD_LENGTH}" shape="{shape_to_string(lane_shape)}"/>"""
+    xml += """
+    </edge>
+    """
+    return xml
+
+
+def generate_dead_end_xml(
+    junction_id: str,
+    x: int,
+    y: int,
+    inc_lanes: list[str],
+    shape: list[tuple[int, int]],
+) -> str:
+    return f"""
+    <junction id="{junction_id}" type="dead_end" x="{x:.2f}" y="{y:.2f}" incLanes="{' '.join(inc_lanes)}" intLanes="" shape="{shape_to_string(shape)}"/>"""
+
+
+def generate_connection_xml(
+    from_node: str,
+    to_node: str,
+    from_lane: int,
+    to_lane: int,
+    lane_type: LaneType,
+    state: str,
+    via: str | None = None,
+    tl: str | None = None,
+    linkIndex: int | None = None,
+) -> str:
+
+    if lane_type == LaneType.STRAIGHT:
+        dir = "s"
+    elif lane_type == LaneType.LEFT:
+        dir = "l"
+    else:
+        dir = "r"
+
+    conn = f"""
+    <connection from="{from_node}" to="{to_node}" fromLane="{from_lane}" toLane="{to_lane}" dir="{dir}" state="{state}" """
+    if via is not None:
+        conn += f"""via="{via}" """
+    if tl is not None:
+        conn += f"""tl="{tl}" """
+    if linkIndex is not None:
+        conn += f"""linkIndex="{linkIndex}" """
+    conn += "/>"
+    return conn
 
 
 def generate_intersection_xml(
@@ -56,89 +142,8 @@ def generate_intersection_xml(
         </tlLogic>
     """
 
-    INTERSECTION_OFFSET = 15
-    ROAD_LENGTH = 150  # Done to ensure road are long enough
-    LANE_WIDTH = 3.2
-    DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
-
     if roads is None:
         roads = generate_intersection(min_lanes, max_lanes)
-
-    def shape_to_string(shape: list[tuple[float, float]]) -> str:
-        return " ".join([f"{x:.2f},{y:.2f}" for x, y in shape])
-
-    def rotate_point_clockwise(point, angle_degrees):
-        angle_radians = math.radians(angle_degrees)
-        x, y = point
-        x_new = x * math.cos(angle_radians) + y * math.sin(angle_radians)
-        y_new = -x * math.sin(angle_radians) + y * math.cos(angle_radians)
-        return (x_new, y_new)
-
-    def rotate_shape(shape, angle_degrees):
-        return [rotate_point_clockwise(point, angle_degrees) for point in shape]
-
-    def generate_edge_xml(
-        edge_id: str,
-        from_node: str,
-        to_node: str,
-        shape: list[tuple[int, int]],
-        road: Road,
-    ) -> str:
-
-        xml = f"""
-        <edge id="{edge_id}" from="{from_node}" to="{to_node}" name="{edge_id}" priority="11" type="{road.road_type.value}" spreadType="center" shape="{shape_to_string(shape)}">"""
-        for i, lane in enumerate(road.lanes):
-            lane_shape = [
-                (shape[0][0] + i * LANE_WIDTH, shape[0][1]),
-                (shape[1][0] + i * LANE_WIDTH, shape[1][1]),
-            ]
-            lane_shape = rotate_shape(lane_shape, degrees)
-            xml += f"""
-            <lane id="{edge_id}_{i}" index="{i}" disallow="{DISALLOW}" speed="{speed_limits[road.road_type]}" length="{ROAD_LENGTH}" shape="{shape_to_string(lane_shape)}"/>"""
-        xml += """
-        </edge>
-        """
-        return xml
-
-    def generate_dead_end_xml(
-        junction_id: str,
-        x: int,
-        y: int,
-        inc_lanes: list[str],
-        shape: list[tuple[int, int]],
-    ) -> str:
-        return f"""
-        <junction id="{junction_id}" type="dead_end" x="{x:.2f}" y="{y:.2f}" incLanes="{' '.join(inc_lanes)}" intLanes="" shape="{shape_to_string(shape)}"/>"""
-
-    def generate_connection_xml(
-        from_node: str,
-        to_node: str,
-        from_lane: int,
-        to_lane: int,
-        lane_type: LaneType,
-        state: str,
-        via: str | None = None,
-        tl: str | None = None,
-        linkIndex: int | None = None,
-    ) -> str:
-
-        if lane_type == LaneType.STRAIGHT:
-            dir = "s"
-        elif lane_type == LaneType.LEFT:
-            dir = "l"
-        else:
-            dir = "r"
-
-        conn = f"""
-        <connection from="{from_node}" to="{to_node}" fromLane="{from_lane}" toLane="{to_lane}" dir="{dir}" state="{state}" """
-        if via is not None:
-            conn += f"""via="{via}" """
-        if tl is not None:
-            conn += f"""tl="{tl}" """
-        if linkIndex is not None:
-            conn += f"""linkIndex="{linkIndex}" """
-        conn += "/>"
-        return conn
 
     # Mapping directions to angles
     direction_angles = {
@@ -171,6 +176,7 @@ def generate_intersection_xml(
             to_node="intersection",
             shape=shape_1,
             road=road,
+            degrees=degrees,
         )
 
         junction_strings.append(
@@ -183,9 +189,26 @@ def generate_intersection_xml(
             )
         )
 
-        # Add a single lane road in the opposite direction making up the leg
-        # 1 lane only necessary since we don't care about collisions
         opposite_direction = get_opposite_direction(road.direction)
+
+        # Get max number of incoming lanes
+        max_incoming_lanes = min(
+            2,
+            max(
+                [
+                    len(
+                        [
+                            get_lane_target_directions(r.direction, l)
+                            for l in r.lanes
+                            if opposite_direction
+                            in get_lane_target_directions(r.direction, l)
+                        ]
+                    )
+                    for r in roads
+                ]
+            ),
+        )  # 2 is by looking at validation set
+
         degrees = direction_angles[opposite_direction]
 
         # Rotate shape resembling S2
@@ -193,16 +216,18 @@ def generate_intersection_xml(
             [(-5, -INTERSECTION_OFFSET), (-5, -(ROAD_LENGTH + INTERSECTION_OFFSET))],
             degrees,
         )
+
         net_xml += generate_edge_xml(
             edge_id=f"{opposite_direction.value}_2",
             from_node="intersection",
             to_node=f"{opposite_direction.value}_3",
             shape=shape_2,
             road=Road(
-                lanes=[LaneType.STRAIGHT],
+                lanes=[LaneType.STRAIGHT for _ in range(max_incoming_lanes)],
                 road_type=road.road_type,
                 direction=opposite_direction,
             ),
+            degrees=degrees,
         )
 
         junction_strings.append(
@@ -210,28 +235,38 @@ def generate_intersection_xml(
                 junction_id=f"{opposite_direction.value}_3",
                 x=shape_2[1][0],
                 y=shape_2[1][1],
-                inc_lanes=[f"{opposite_direction.value}_2_0"],  # Only one lane
+                inc_lanes=[
+                    f"{opposite_direction.value}_2_{i}"
+                    for i in range(max_incoming_lanes)
+                ],
                 shape=[(10, 10), (10, -10)],
             )
         )
 
         net_xml += "\n"
 
+        outgoing_lane_counter: dict[RoadDirection, int] = {}
+
         for lane_number, lane in enumerate(road.lanes):
             target_directions = get_lane_target_directions(road.direction, lane)
+
             for target_direction in target_directions:
+                if target_direction not in outgoing_lane_counter:
+                    outgoing_lane_counter[target_direction] = 0
+
                 lane_connection_strings.append(
                     generate_connection_xml(
                         from_node=f"{road.direction.value}_1",
                         to_node=f"{target_direction.value}_2",
                         from_lane=lane_number,
-                        to_lane=0,
+                        to_lane=outgoing_lane_counter[target_direction],
                         lane_type=lane,
                         state="o",
                         tl="intersection",
                         linkIndex=linkIndexCounter,
                     )
                 )
+                outgoing_lane_counter[target_direction] += 1
 
             connections.append(
                 Connection(
@@ -261,39 +296,8 @@ def generate_intersection_xml(
     </net>
     """
 
-    rou_xml = """<?xml version="1.0" encoding="UTF-8"?>
-
-    <!-- generated on 2024-07-04 11:40:22 by Eclipse SUMO netedit Version 1.15.0
-    -->
-
-    <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">"""
-
-    options = {150: 0.5, 300: 0.2, 600: 0.3, 900: 0.3, 1800: 0.04, 3600: 0.01}
-
-    id_counter = 0
-    for road in roads:
-        for lane_type in list(LaneType):
-            number_of_lanes = road.lanes.count(lane_type)
-            if number_of_lanes == 0:
-                continue
-            # Pick a random number of vehicles per hour based on the options
-            vehicles_per_hour = min(
-                sum(
-                    random.choices(
-                        list(options.keys()),
-                        weights=list(options.values()),
-                        k=number_of_lanes,
-                    )
-                ),
-                3600,
-            )
-            target_directions = get_lane_target_directions(road.direction, lane_type)
-            for target_direction in target_directions:
-                rou_xml += f"""
-                <flow id="f_{id_counter}" begin="0.00" from="{road.direction.value}_1" to="{target_direction.value}_2" end="3600.00" vehsPerHour="{vehicles_per_hour}"/>"""
-                id_counter += 1
-    rou_xml += """
-    </routes>"""
+    # Generate the rou.xml file
+    generate_random_flow(path, roads)
 
     legs = [
         InternalLeg(
@@ -367,34 +371,61 @@ def generate_intersection_xml(
 
     subprocess.run(cmd)
 
-    with open(f"{path}/intersection.rou.xml", "w") as f:
-        f.write(rou_xml)
-
     with open(f"{path}/net.sumocfg", "w") as f:
         f.write(sumo_cfg)
 
 
 if __name__ == "__main__":
+    # roads = [
+    #     Road(
+    #         lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    #         road_type=RoadType.HIGHWAY_PRIMARY,
+    #         direction=RoadDirection.N,
+    #     ),
+    #     Road(
+    #         lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    #         road_type=RoadType.HIGHWAY_PRIMARY,
+    #         direction=RoadDirection.S,
+    #     ),
+    #     Road(
+    #         lanes=[LaneType.RIGHT, LaneType.STRAIGHT_LEFT],
+    #         road_type=RoadType.HIGHWAY_PRIMARY,
+    #         direction=RoadDirection.E,
+    #     ),
+    #     Road(
+    #         lanes=[LaneType.ALL],
+    #         road_type=RoadType.HIGHWAY_PRIMARY,
+    #         direction=RoadDirection.W,
+    #     ),
+    # ]
+
     roads = [
         Road(
-            lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
             road_type=RoadType.HIGHWAY_PRIMARY,
             direction=RoadDirection.N,
         ),
         Road(
-            lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
             road_type=RoadType.HIGHWAY_PRIMARY,
             direction=RoadDirection.S,
         ),
         Road(
-            lanes=[LaneType.RIGHT, LaneType.STRAIGHT_LEFT],
+            lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
             road_type=RoadType.HIGHWAY_PRIMARY,
             direction=RoadDirection.E,
         ),
         Road(
-            lanes=[LaneType.ALL],
+            lanes=[
+                LaneType.STRAIGHT,
+                LaneType.STRAIGHT,
+                LaneType.LEFT,
+                LaneType.LEFT,
+                LaneType.LEFT,
+            ],
             road_type=RoadType.HIGHWAY_PRIMARY,
             direction=RoadDirection.W,
         ),
     ]
-    generate_intersection_xml(path=f"intersections/{2}", roads=roads)
+
+    generate_intersection_xml(path=f"intersections/3", roads=roads)

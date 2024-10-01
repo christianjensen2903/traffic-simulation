@@ -185,7 +185,7 @@ class DiscritizeSignal(gym.ObservationWrapper):
 
 
 if __name__ == "__main__":
-    env = SumoEnv(config_path="intersections/2")
+    env = SumoEnv(intersection_path="intersections/2")
     env = BinVehicles(env)
     env = DiscritizeSignal(env)
     obs, _ = env.reset()

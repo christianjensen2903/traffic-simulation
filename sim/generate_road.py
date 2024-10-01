@@ -27,7 +27,7 @@ class LaneType(Enum):
 
 class Road(BaseModel):
     lanes: list[LaneType]
-    road_type: RoadType
+    road_type: RoadType = RoadType.HIGHWAY_PRIMARY
     direction: RoadDirection
 
 

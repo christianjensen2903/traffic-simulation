@@ -7,7 +7,7 @@ from generate_road import RoadDirection
 from sumo_wrappers import BinVehicles, DiscritizeSignal
 
 
-env = SumoEnv(config_path="intersections/2")
+env = SumoEnv(intersection_path="intersections/2")
 
 env = BinVehicles(env)
 env = DiscritizeSignal(env)
