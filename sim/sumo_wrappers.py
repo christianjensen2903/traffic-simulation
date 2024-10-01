@@ -2,6 +2,12 @@ import gymnasium as gym
 from gymnasium import spaces
 from stable_baselines3 import DQN
 from sumo_env import SumoEnv, TrafficColor
+from generate_road import (
+    LaneType,
+    RoadDirection,
+    index_to_direction,
+    direction_to_index,
+)
 import numpy as np
 import time
 import json
@@ -36,6 +42,7 @@ class BinVehicles(gym.ObservationWrapper):
             {
                 "vehicles": self.vehicles_space,
                 "signals": env.signal_space,
+                "legs": env.legs_space,
             }
         )
 
@@ -67,12 +74,10 @@ class BinVehicles(gym.ObservationWrapper):
         return binned_vehicles
 
     def _get_direction_index(self, group_name: str) -> int:
-        """Get the index of the direction of the leg. 0: N, 1: E, 2: S, 3: W (clockwise)"""
         direction = group_name.split("_")[0]
-        return ["N", "E", "S", "W"].index(direction)
+        return direction_to_index(RoadDirection(direction))
 
     def observation(self, obs: dict) -> dict:
-        signals = obs["signals"]
         vehicles = obs["vehicles"]
         assert isinstance(vehicles, dict)
 
@@ -106,7 +111,9 @@ class BinVehicles(gym.ObservationWrapper):
                     avg_distance,
                 ]
 
-        return {"vehicles": discrete_vehicles, "signals": signals}
+        obs["vehicles"] = discrete_vehicles
+
+        return obs
 
 
 class DiscritizeSignal(gym.ObservationWrapper):
@@ -128,17 +135,19 @@ class DiscritizeSignal(gym.ObservationWrapper):
             dtype=np.float32,
         )
         self.vehicles_space = self.env.vehicles_space
+        self.legs_space = self.env.legs_space
         self.observation_space = spaces.Dict(
             {
                 "signals": self.signals_space,
                 "vehicles": self.vehicles_space,
+                "legs": self.legs_space,
             }
         )
 
     def _get_direction_index(self, group_name: str) -> int:
         """Get the index of the direction in the signal space. 0: N, 1: E, 2: S, 3: W (clockwise)"""
         direction = group_name.split("_")[0]
-        return ["N", "E", "S", "W"].index(direction)
+        return direction_to_index(RoadDirection(direction))
 
     def _get_lane_index(self, lane: str) -> int:
         """Get the index of the lane in the signal space. 0: Left, 1: Straight, 2: Right"""
@@ -167,7 +176,6 @@ class DiscritizeSignal(gym.ObservationWrapper):
 
     def observation(self, obs: dict) -> dict:
         signals = obs["signals"]
-        vehicles = obs["vehicles"]
         assert isinstance(signals, dict)
 
         signal_obs = np.zeros(self.signals_space.shape)
@@ -181,20 +189,62 @@ class DiscritizeSignal(gym.ObservationWrapper):
             for lane_index in lane_indices:
                 signal_obs[direction_index][lane_index][color_index] = time
 
-        return {"signals": signal_obs, "vehicles": vehicles}
+        obs["signals"] = signal_obs
+        return obs
+
+
+class DiscretizeLegs(gym.ObservationWrapper):
+    """A wrapper that discretizes the legs observations"""
+
+    def __init__(self, env: SumoEnv):
+        super().__init__(env)
+        self.legs_space = spaces.MultiBinary(
+            [
+                4,  # Max 4 incoming roads
+                5,  # Max 5 lanes
+                len(LaneType),
+            ]
+        )
+        self.signals_space = env.signals_space
+        self.vehicles_space = env.vehicles_space
+        self.observation_space = spaces.Dict(
+            {
+                "signals": self.signals_space,
+                "vehicles": self.vehicles_space,
+                "legs": self.legs_space,
+            }
+        )
+
+    def _get_direction_index(self, group_name: str) -> int:
+        direction = group_name.split("_")[0]
+        return direction_to_index(RoadDirection(direction))
+
+    def observation(self, observation: dict) -> dict:
+        legs = observation["legs"]
+        assert isinstance(legs, dict)
+
+        leg_obs = np.zeros(self.legs_space.shape)
+        for group, lanes in legs.items():
+            for i, lane_enc in enumerate(lanes):
+                direction_index = self._get_direction_index(group)
+                leg_obs[direction_index][i] = lane_enc
+
+        observation["legs"] = leg_obs
+        return observation
 
 
 if __name__ == "__main__":
     env = SumoEnv(intersection_path="intersections")
     env = BinVehicles(env)
     env = DiscritizeSignal(env)
+    env = DiscretizeLegs(env)
     obs, _ = env.reset()
     done = False
     while not done:
         action = np.ones(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
         print(obs)
-        # input()
+        input()
         print(f"Reward: {reward}")
 
     env.close()

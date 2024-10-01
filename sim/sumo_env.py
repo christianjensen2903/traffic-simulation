@@ -10,7 +10,13 @@ from pydantic import BaseModel
 from enum import Enum
 from typing import Literal
 import numpy as np
-from generate_road import LaneType, Road, RoadDirection
+from generate_road import (
+    LaneType,
+    Road,
+    RoadDirection,
+    index_to_direction,
+    direction_to_index,
+)
 from generate_random_flow import generate_random_flow
 import random
 
@@ -89,11 +95,16 @@ class SumoEnv(gym.Env):
         self.signals_space = spaces.Dict(
             {group: self.signal_space for group in self.signal_groups}
         )
-        # TODO: Add lanes/legs information
+        self.leg_space = spaces.MultiBinary(len(LaneType))
+        self.legs_space = spaces.Dict(
+            {leg.name: spaces.Sequence(self.leg_space) for leg in self.legs}
+        )
+
         self.observation_space = spaces.Dict(
             {
                 "vehicles": self.vehicles_space,
                 "signals": self.signals_space,
+                "legs": self.legs_space,
             }
         )
 
@@ -193,14 +204,28 @@ class SumoEnv(gym.Env):
             for group, state in self._signal_states.items()
         }
 
+    def _get_leg_info(self) -> list[dict]:
+        info = {}
+        for leg in self.legs:
+            lane_info = []
+            for lane in leg.lanes:
+                enc = np.zeros(self.leg_space.shape)
+                lane_type = LaneType(lane)
+                enc[list(LaneType).index(lane_type)] = 1
+                lane_info.append(enc)
+            info[leg.name] = lane_info
+        return info
+
     def _get_observation(self) -> dict:
         """Gets a list of all vehicles and their states"""
         vehicles = self._get_and_update_vehicles()
         signals = self._get_signal_states()
+        legs = self._get_leg_info()
 
         return {
             "vehicles": vehicles,
             "signals": signals,
+            "legs": legs,
         }
 
     def _get_phase_string(self) -> str:
@@ -244,10 +269,6 @@ class SumoEnv(gym.Env):
             self.junction, phase_string
         )
 
-    def _index_to_direction(self, index: int) -> str:
-        """Get the direction from the index"""
-        return ["N", "E", "S", "W"][index]
-
     def _index_to_lane_type(self, index: int) -> LaneType:
         """Get the lane type from the index"""
         return list(LaneType)[index]
@@ -260,7 +281,7 @@ class SumoEnv(gym.Env):
         for i, a in enumerate(action):
             direction_index = i // len(LaneType)
             lane_index = i % len(LaneType)
-            direction = self._index_to_direction(direction_index)
+            direction = index_to_direction(direction_index)
             lane_type = self._index_to_lane_type(lane_index)
             group = f"{direction}_{lane_type.value}"
             if group in self.signal_groups:
@@ -275,7 +296,7 @@ class SumoEnv(gym.Env):
         mask = np.zeros(self.action_space.shape, dtype=np.float32)
         for i in range(self.action_space.shape[0]):
             for j in range(self.action_space.shape[1]):
-                direction = self._index_to_direction(i)
+                direction = index_to_direction(i)
                 lane_type = self._index_to_lane_type(j)
                 group = f"{direction}_{lane_type.value}"
 
@@ -310,11 +331,11 @@ class SumoEnv(gym.Env):
         self._ticks += 1
         observation = self._get_observation()
         loss_after = self._calc_loss()
-        reward = float(loss_before - loss_after)  # - delta_loss
+        reward = loss_before - loss_after  # - delta_loss
 
         done = self._ticks >= self.max_simulation_time
 
-        return observation, reward, done, None, {}  # No extra info or truncated
+        return observation, reward, done, False, {}  # No extra info or truncated
 
     def reset(self, seed=None, options=None):
 

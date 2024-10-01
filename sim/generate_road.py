@@ -16,6 +16,16 @@ class RoadDirection(Enum):
     W = "W"
 
 
+def index_to_direction(index: int) -> RoadDirection:
+    return [RoadDirection.N, RoadDirection.E, RoadDirection.S, RoadDirection.W][index]
+
+
+def direction_to_index(direction: RoadDirection) -> int:
+    return [RoadDirection.N, RoadDirection.E, RoadDirection.S, RoadDirection.W].index(
+        direction
+    )
+
+
 class LaneType(Enum):
     ALL = "all"
     STRAIGHT = "straight"

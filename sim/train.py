@@ -3,12 +3,12 @@ from gymnasium import spaces
 from stable_baselines3 import PPO
 from sumo_env import SumoEnv
 import numpy as np
-from sumo_wrappers import BinVehicles, DiscritizeSignal
+from sumo_wrappers import BinVehicles, DiscritizeSignal, DiscretizeLegs
 from wandb.integration.sb3 import WandbCallback
 import wandb
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
-LOG_WANDB = False
+LOG_WANDB = True
 
 if LOG_WANDB:
     wandb.init(project="sumo-rl")
@@ -20,6 +20,7 @@ if __name__ == "__main__":
         env = SumoEnv(intersection_path="intersections")
         env = BinVehicles(env)
         env = DiscritizeSignal(env)
+        env = DiscretizeLegs(env)
 
         return env
 
