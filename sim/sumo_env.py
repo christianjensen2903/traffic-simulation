@@ -14,6 +14,7 @@ from generate_road import LaneType, Road, RoadDirection
 from generate_random_flow import generate_random_flow
 import random
 
+
 if "SUMO_HOME" in os.environ:
     tools = os.path.join(os.environ["SUMO_HOME"], "tools")
     sys.path.append(tools)
@@ -54,6 +55,7 @@ class SumoEnv(gym.Env):
         self.max_simulation_time = max_simulation_time
         self.intersection_path = intersection_path
         self.load_config(f"{intersection_path}/2")
+        self.visualize = False
 
         # Max 4 incoming roads. Has to be flattened
         self.action_space = spaces.MultiBinary(4 * len(LaneType))
@@ -172,6 +174,9 @@ class SumoEnv(gym.Env):
                         }
                     )
 
+                    # self._vehicle_waiting_times[vehicle] = (
+                    #     traci.vehicle.getAccumulatedWaitingTime(vehicle)
+                    # )  # Not exactly same definition but allows for longer timesteps
                     if vehicle_speed < 0.5:  # Vehicle travels at less than 1.8 km/h
                         if vehicle not in self._vehicle_waiting_times:
                             self._vehicle_waiting_times[vehicle] = 0
@@ -297,7 +302,7 @@ class SumoEnv(gym.Env):
 
         self.load_config(path)
 
-        sumoBinary = checkBinary("sumo-gui")
+        sumoBinary = checkBinary("sumo-gui" if self.visualize else "sumo")
 
         sim_instance = uuid4().hex
 
@@ -307,6 +312,9 @@ class SumoEnv(gym.Env):
             "--quit-on-end",
             "-c",
             f"{path}/net.sumocfg",
+            "--no-warnings",
+            "--step-length",
+            "1",
         ]
 
         if self._random_state:
@@ -323,8 +331,11 @@ class SumoEnv(gym.Env):
 
         return self._get_observation(), None  # No extra info
 
+    def toggle_visualize(self):
+        self.visualize = not self.visualize
+
     def render(self, mode="human"):
-        pass
+        self.visualize = True
 
     def close(self):
         if self._traci_connection:
@@ -334,6 +345,7 @@ class SumoEnv(gym.Env):
 
 if __name__ == "__main__":
     env = SumoEnv(intersection_path="intersections")
+    env.visualize = True
     env.reset()
     done = False
     while not done:
