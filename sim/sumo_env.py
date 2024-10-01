@@ -320,7 +320,7 @@ class SumoEnv(gym.Env):
 
         if self._random_state:
             # choice = random.choice([3, 4])  # Either of the two val intersections
-            choice = 3
+            choice = 4
             path = f"intersections/{choice}"
             generate_random_flow(self.intersection_path, roads=self.roads)
         else:
@@ -339,6 +339,8 @@ class SumoEnv(gym.Env):
             "-c",
             f"{path}/net.sumocfg",
             "--no-warnings",
+            "--time-to-teleport",  # Disable teleporting
+            "-1",
             "--step-length",
             "1",
         ]
@@ -376,7 +378,8 @@ if __name__ == "__main__":
     env.reset()
     done = False
     while not done:
-        action = np.random.randint(0, 2, size=env.action_space.shape)
+        # action = np.random.randint(0, 2, size=env.action_space.shape)
+        action = np.zeros(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
         print(reward)
         # press any key to continue

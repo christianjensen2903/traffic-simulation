@@ -3,19 +3,10 @@ from gymnasium import spaces
 from stable_baselines3 import PPO
 from sumo_env import SumoEnv
 import numpy as np
-from generate_road import RoadDirection
 from sumo_wrappers import BinVehicles, DiscritizeSignal
-import time
-import os
-from stable_baselines3.common.callbacks import (
-    EveryNTimesteps,
-    BaseCallback,
-    CallbackList,
-)
 from wandb.integration.sb3 import WandbCallback
 import wandb
 from stable_baselines3.common.vec_env import SubprocVecEnv
-from sb3_contrib import MaskablePPO
 
 LOG_WANDB = False
 
@@ -41,8 +32,8 @@ if __name__ == "__main__":
 
     model = PPO("MultiInputPolicy", env, verbose=1)
     model.learn(
-        total_timesteps=100000,
-        log_interval=3,
+        total_timesteps=50000,
+        log_interval=1,
         progress_bar=True,
         callback=callback,
     )

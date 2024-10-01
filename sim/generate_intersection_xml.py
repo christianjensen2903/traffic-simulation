@@ -19,7 +19,7 @@ import subprocess
 
 INTERSECTION_OFFSET = 15
 ROAD_LENGTH = 150  # Done to ensure road are long enough
-LANE_WIDTH = 3.2
+LANE_WIDTH = 3.25
 DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
 
 speed_limits = {
@@ -164,10 +164,9 @@ def generate_intersection_xml(
         degrees = direction_angles[road.direction]
 
         # Rotate shape resembling S1
-        shape_1 = rotate_shape(
-            [(-5, ROAD_LENGTH + INTERSECTION_OFFSET), (-5, INTERSECTION_OFFSET)],
-            degrees,
-        )
+        shape_1 = [(-5, ROAD_LENGTH + INTERSECTION_OFFSET), (-5, INTERSECTION_OFFSET)]
+
+        shape_1 = rotate_shape(shape_1, degrees)
 
         # Add road to the XML
         net_xml += generate_edge_xml(
@@ -212,8 +211,21 @@ def generate_intersection_xml(
         degrees = direction_angles[opposite_direction]
 
         # Rotate shape resembling S2
+
+        shape_2 = [
+            (-5, -INTERSECTION_OFFSET),
+            (-5, -(ROAD_LENGTH + INTERSECTION_OFFSET)),
+        ]
+        # If above 4 lanes shift the shape to the left
+        # A quick fix to avoid overlapping lanes
+        if len(road.lanes) > 4:
+            shape_2 = [
+                (-7, -INTERSECTION_OFFSET),
+                (-7, -(ROAD_LENGTH + INTERSECTION_OFFSET)),
+            ]
+
         shape_2 = rotate_shape(
-            [(-5, -INTERSECTION_OFFSET), (-5, -(ROAD_LENGTH + INTERSECTION_OFFSET))],
+            shape_2,
             degrees,
         )
 
