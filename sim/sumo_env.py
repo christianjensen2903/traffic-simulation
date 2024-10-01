@@ -202,8 +202,9 @@ class SumoEnv(gym.Env):
         """Update the traffic lights based on the action"""
         for group, state in self._signal_states.items():
             desired_color = action.get(group, TrafficColor.RED)
+
             if state.color == TrafficColor.RED and desired_color == TrafficColor.GREEN:
-                state.color = TrafficColor.AMBER
+                state.color = TrafficColor.REDAMBER
                 state.time = 0
             elif state.color == TrafficColor.AMBER and state.time >= self.amber_time:
                 state.color = TrafficColor.RED
@@ -219,7 +220,7 @@ class SumoEnv(gym.Env):
                 and desired_color == TrafficColor.RED
                 and state.time >= self.min_green_time
             ):
-                state.color = TrafficColor.REDAMBER
+                state.color = TrafficColor.AMBER
                 state.time = 0
             else:  # Not ready to shift or not legal change
                 state.time += 1
@@ -319,13 +320,13 @@ class SumoEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = SumoEnv(config_path="intersections/3")
+    env = SumoEnv(config_path="intersections/4")
     env.reset()
     done = False
     while not done:
         action = np.random.randint(0, 2, size=env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
         # press any key to continue
-        input()
+        # input()
         print(f"Reward: {reward}")
     env.close()
