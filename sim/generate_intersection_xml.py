@@ -27,7 +27,7 @@ speed_limits = {
 
 
 def generate_intersection_xml(
-    path: str, min_lanes: int = 1, max_lanes: int = 6
+    path: str, min_lanes: int = 1, max_lanes: int = 6, roads: list[Road] = None
 ) -> None:
     # Load the SUMO network
     net_xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -61,7 +61,8 @@ def generate_intersection_xml(
     LANE_WIDTH = 3.2
     DISALLOW = "tram rail_urban rail rail_electric rail_fast ship cable_car subway"
 
-    roads = generate_intersection(min_lanes, max_lanes)
+    if roads is None:
+        roads = generate_intersection(min_lanes, max_lanes)
 
     def shape_to_string(shape: list[tuple[float, float]]) -> str:
         return " ".join([f"{x:.2f},{y:.2f}" for x, y in shape])
@@ -374,4 +375,26 @@ def generate_intersection_xml(
 
 
 if __name__ == "__main__":
-    generate_intersection_xml(path=f"intersections/{2}")
+    roads = [
+        Road(
+            lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            road_type=RoadType.HIGHWAY_PRIMARY,
+            direction=RoadDirection.N,
+        ),
+        Road(
+            lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            road_type=RoadType.HIGHWAY_PRIMARY,
+            direction=RoadDirection.S,
+        ),
+        Road(
+            lanes=[LaneType.RIGHT, LaneType.STRAIGHT_LEFT],
+            road_type=RoadType.HIGHWAY_PRIMARY,
+            direction=RoadDirection.E,
+        ),
+        Road(
+            lanes=[LaneType.ALL],
+            road_type=RoadType.HIGHWAY_PRIMARY,
+            direction=RoadDirection.W,
+        ),
+    ]
+    generate_intersection_xml(path=f"intersections/{2}", roads=roads)
