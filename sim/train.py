@@ -5,7 +5,7 @@ from sumo_env import SumoEnv
 import numpy as np
 from torch import nn
 import torch
-from sumo_wrappers import BinVehicles, DiscritizeSignal, DiscretizeLegs
+from sumo_wrappers import BinVehicles, DiscritizeSignal, DiscretizeLegs, SimpleObs
 from wandb.integration.sb3 import WandbCallback
 from stable_baselines3.common.callbacks import (
     BaseCallback,
@@ -17,22 +17,27 @@ import wandb
 from typing import Callable, Tuple
 from stable_baselines3.common.vec_env import SubprocVecEnv
 from stable_baselines3.common.policies import ActorCriticPolicy
-from feature_extractor import FeatureExtractor, CustomActorCriticPolicy
+from model import FeatureExtractor, CustomActorCriticPolicy
 
 LOG_WANDB = True
 
 
 if LOG_WANDB:
-    run = wandb.init(project="sumo", sync_tensorboard=True)
+    run = wandb.init(
+        project="sumo",
+        sync_tensorboard=True,
+        #  save_code=True
+    )
 
 
 if __name__ == "__main__":
 
     def create_env():
         env = SumoEnv(intersection_path="intersections")
-        env = BinVehicles(env)
+        # env = BinVehicles(env)
         env = DiscritizeSignal(env)
-        env = DiscretizeLegs(env)
+        # env = DiscretizeLegs(env)
+        env = SimpleObs(env)
 
         return env
 
@@ -43,13 +48,19 @@ if __name__ == "__main__":
     env = create_env()
 
     visualize_game_callback = EvalCallback(
-        visualize_env, deterministic=True, eval_freq=50000, n_eval_episodes=1
+        visualize_env, deterministic=True, eval_freq=10000, n_eval_episodes=1
     )
 
-    callbacks = [visualize_game_callback]
+    callbacks = [
+        # visualize_game_callback
+    ]
 
     if LOG_WANDB:
-        callbacks.append(WandbCallback(verbose=2))
+        callbacks.append(
+            WandbCallback(
+                verbose=2, model_save_freq=10000, model_save_path=f"models/{run.id}"
+            )
+        )
 
     tensorboard_log = f"runs/{run.id}" if LOG_WANDB else None
 
@@ -73,15 +84,16 @@ if __name__ == "__main__":
         ),
     )
     model = PPO(
-        CustomActorCriticPolicy,
+        # CustomActorCriticPolicy,
+        "MultiInputPolicy",
         env,
         verbose=1,
         tensorboard_log=tensorboard_log,
-        policy_kwargs=policy_kwargs,
+        # policy_kwargs=policy_kwargs,
     )
 
     model.learn(
-        total_timesteps=200000,
+        total_timesteps=50000,
         log_interval=1,
         progress_bar=True,
         callback=CallbackList(callbacks),
