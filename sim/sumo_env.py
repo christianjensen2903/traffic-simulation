@@ -368,8 +368,8 @@ class SumoEnv(gym.Env):
             "-c",
             f"{path}/net.sumocfg",
             "--no-warnings",
-            "--time-to-teleport",  # Disable teleporting
-            "-1",
+            # "--time-to-teleport",  # Disable teleporting
+            # "-1",
             "--step-length",
             "1",
         ]
