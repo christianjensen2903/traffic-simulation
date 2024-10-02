@@ -451,6 +451,9 @@ class TrafficSimulationEnvHandler:
             allowed_green_signal_combinations=self.allowed_green_signal_comb_dto,
             is_terminated=terminates_now,
         )
+        # Write observable state to the json file
+        with open("observable_state.json", "w") as f:
+            json.dump(self.observable_state.model_dump(), f)
 
         if self._output_queue:
             self._output_queue.put(self.observable_state)
@@ -460,7 +463,7 @@ class TrafficSimulationEnvHandler:
         self._simulation_is_running = True
 
         logger.info("Traffic simulation - starting sumo....")
-        sumoBinary = checkBinary("sumo")
+        sumoBinary = checkBinary("sumo-gui")
 
         sim_instance = uuid4().hex
 
@@ -491,7 +494,7 @@ class TrafficSimulationEnvHandler:
                 self._test_duration_seconds + self.warm_up_ticks
             ):
                 self._run_one_tick()
-                sleep(0.5)
+                # sleep(0.5)
             else:
                 self._run_one_tick(terminates_now=True)
                 break

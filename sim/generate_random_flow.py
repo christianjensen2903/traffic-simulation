@@ -36,6 +36,8 @@ def generate_random_flow(path: str, roads: list[Road]) -> None:
                 ),
                 5000,
             )
+            if vehicles_per_hour == 0:
+                continue
             target_directions = get_lane_target_directions(road.direction, lane_type)
             for target_direction in target_directions:
                 rou_xml += f"""
