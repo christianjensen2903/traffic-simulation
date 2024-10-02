@@ -130,7 +130,7 @@ class SumoEnv(gym.Env):
         self.junction = config["junction"]
 
         self.max_distance = 100
-        self._random_state = True
+        self.random_state = True
         self.amber_time = 4
         self.red_amber_time = 2
         self.min_green_time = 6
@@ -339,7 +339,7 @@ class SumoEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
 
-        if self._random_state:
+        if self.random_state:
             # choice = random.choice([3, 4])  # Either of the two val intersections
             choice = 4
             path = f"intersections/{choice}"
@@ -366,7 +366,7 @@ class SumoEnv(gym.Env):
             "1",
         ]
 
-        if self._random_state:
+        if self.random_state:
             cmd.append("--random")
 
         traci.start(cmd, label=sim_instance)
