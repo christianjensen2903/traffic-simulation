@@ -233,17 +233,70 @@ class DiscretizeLegs(gym.ObservationWrapper):
         return observation
 
 
+class SimpleObs(gym.ObservationWrapper):
+    def __init__(self, env: SumoEnv):
+        super().__init__(env)
+
+        self.observation_space = spaces.Dict(
+            {
+                "signals": env.signals_space,
+                "vehicles": spaces.Box(
+                    low=0,
+                    high=90,
+                    shape=(4, 2),
+                    dtype=np.float32,
+                ),
+            }
+        )
+
+    def _get_direction_index(self, group_name: str) -> int:
+        direction = group_name.split("_")[0]
+        return direction_to_index(RoadDirection(direction))
+
+    def observation(self, obs: dict) -> dict:
+        vehicles = obs["vehicles"]
+
+        # Get the amount of cars stopped and not stopped in each leg
+        legs = np.zeros((4, 2))
+        for leg_name, vehicles in vehicles.items():
+            direction_index = self._get_direction_index(leg_name)
+            for vehicle in vehicles:
+                if vehicle["speed"] < 0.5:
+                    legs[direction_index][0] += 1
+                else:
+                    legs[direction_index][1] += 1
+
+        return {
+            "signals": obs["signals"],
+            "vehicles": legs,
+        }
+
+
+class OnlyLegalCombinations(gym.ActionWrapper):
+    def __init__(self, env: SumoEnv):
+        super().__init__(env)
+        self.action_space = spaces.MultiBinary([len(env.legal_combinations)])
+
+    def action(self, action: np.ndarray) -> np.ndarray:
+        legal_combinations = self.env.legal_combinations
+        assert len(action) == len(legal_combinations)
+        action = action.astype(bool)
+        return action
+
+
 if __name__ == "__main__":
     env = SumoEnv(intersection_path="intersections")
-    env = BinVehicles(env)
+    env.visualize = True
+    # env = BinVehicles(env)
     env = DiscritizeSignal(env)
-    env = DiscretizeLegs(env)
+    # env = DiscretizeLegs(env)
+    env = SimpleObs(env)
     obs, _ = env.reset()
     done = False
     while not done:
         action = np.ones(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
-        print(obs)
+        # print(obs)
         input()
         print(f"Reward: {reward}")
 
