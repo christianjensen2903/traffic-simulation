@@ -129,12 +129,13 @@ class SumoEnv(gym.Env):
         self.signal_groups: list[str] = config["groups"]
         self._signal_states = {group: SignalState() for group in self.signal_groups}
         self.junction = config["junction"]
-        # allowed_green_signal_combinations = [
-        #     AllowedGreenSignalCombinationDto(
-        #         name=comb["signal"][0], groups=comb["allowed"]
-        #     )
-        #     for comb in intersection["allowed_green_signal_combinations"]
-        # ]
+
+        self.disallowed_green_signal_combinations = {
+            comb["signal"]: [
+                grp for grp in self.signal_groups if grp not in comb["allowed"]
+            ]
+            for comb in config["allowed_green_signal_combinations"]
+        }
 
         self.max_distance = 100
         self.random_state = True
@@ -248,8 +249,12 @@ class SumoEnv(gym.Env):
         for group, state in self._signal_states.items():
             desired_color = action.get(group, TrafficColor.RED)
 
-            if state.color == TrafficColor.RED and desired_color == TrafficColor.GREEN:
-                state.color = TrafficColor.REDAMBER
+            if (
+                state.color == TrafficColor.GREEN
+                and desired_color == TrafficColor.RED
+                and state.time >= self.min_green_time
+            ):
+                state.color = TrafficColor.AMBER
                 state.time = 0
             elif state.color == TrafficColor.AMBER and state.time >= self.amber_time:
                 state.color = TrafficColor.RED
@@ -260,15 +265,26 @@ class SumoEnv(gym.Env):
             ):
                 state.color = TrafficColor.GREEN
                 state.time = 0
-            elif (
-                state.color == TrafficColor.GREEN
-                and desired_color == TrafficColor.RED
-                and state.time >= self.min_green_time
-            ):
-                state.color = TrafficColor.AMBER
-                state.time = 0
             else:  # Not ready to shift or not legal change
                 state.time += 1
+
+        for group, state in self._signal_states.items():
+            desired_color = action.get(group, TrafficColor.RED)
+
+            if state.color == TrafficColor.RED and desired_color == TrafficColor.GREEN:
+
+                can_change = True
+                for disallowed_group in self.disallowed_green_signal_combinations[
+                    group
+                ]:
+                    c = self._signal_states[disallowed_group].color
+                    if c in [TrafficColor.GREEN, TrafficColor.REDAMBER]:
+                        can_change = False
+                        break
+
+                if can_change:
+                    state.color = TrafficColor.REDAMBER
+                    state.time = 0
 
         # Set colors in SUMO
         phase_string = self._get_phase_string()
@@ -349,7 +365,7 @@ class SumoEnv(gym.Env):
 
         if self.random_state:
             # choice = random.choice([3, 4])  # Either of the two val intersections
-            choice = 4
+            choice = 3
             path = f"intersections/{choice}"
             generate_random_flow(self.intersection_path, roads=self.roads)
         else:
@@ -407,8 +423,8 @@ if __name__ == "__main__":
     env.reset()
     done = False
     while not done:
-        # action = np.random.randint(0, 2, size=env.action_space.shape)
-        action = np.zeros(env.action_space.shape)
+        action = np.random.randint(0, 2, size=env.action_space.shape)
+        # action = np.zeros(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
         print(reward)
         # press any key to continue
