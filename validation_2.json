@@ -54,17 +54,17 @@
   "legs": [
     {
       "name": "A1",
-      "lanes": ["Left", "Main", "Right"],
+      "lanes": ["LEFT", "Main", "RIGHT"],
       "signal_groups": ["A1", "A1RightTurn", "A1LeftTurn"]
     },
     {
       "name": "A2",
-      "lanes": ["Left", "Main", "Right"],
+      "lanes": ["LEFT", "Main", "RIGHT"],
       "signal_groups": ["A2", "A2RightTurn", "A2LeftTurn"]
     },
     {
       "name": "B1",
-      "lanes": ["Main", "Right"],
+      "lanes": ["Main", "RIGHT"],
       "signal_groups": ["B1", "B1RightTurn"]
     },
     {

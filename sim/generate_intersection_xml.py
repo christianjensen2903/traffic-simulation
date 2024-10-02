@@ -133,7 +133,7 @@ def generate_intersection_xml(
             <phase duration="6"  state="rrrrrrryyyrrrrrryyrr"/>
             <phase duration="17" state="rrrrrrrrrrrrGGGGrrrr" name="Restaurant"/>
             <phase duration="6"  state="rrrrrrrrrrrryyyyrrrr"/>
-            <phase duration="17" state="rrrrrrrrrrGGrrrrrrGG" name="Main_left"/>
+            <phase duration="17" state="rrrrrrrrrrGGrrrrrrGG" name="Main_LEFT"/>
             <phase duration="6"  state="rrrrrrrrrryyrrrrrryy"/>
             <phase duration="17" state="rrrrrrrrrrrrrrrrGGGG" name="Hotel"/>
             <phase duration="2"  state="rrrrrrrrrrrrrrrryyyy"/>

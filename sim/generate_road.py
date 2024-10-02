@@ -27,12 +27,12 @@ def direction_to_index(direction: RoadDirection) -> int:
 
 
 class LaneType(Enum):
-    ALL = "all"
-    STRAIGHT = "straight"
-    LEFT = "left"
-    RIGHT = "right"
-    STRAIGHT_RIGHT = "straight_right"
-    STRAIGHT_LEFT = "straight_left"
+    ALL = "ALL"
+    STRAIGHT = "STRAIGHT"
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    STRAIGHT_RIGHT = "STRAIGHT_RIGHT"
+    STRAIGHT_LEFT = "STRAIGHT_LEFT"
 
 
 class Road(BaseModel):
@@ -56,43 +56,43 @@ def get_lane_type_probabilities(
         }
     else:
         # Weights for each lane type
-        w_left = 0.5  # Weight for left-turn lanes
-        w_right = 1.0  # Weight for right-turn lanes
-        w_straight_right = 1
-        w_straight_left = 0.5
-        w_straight = (
+        w_LEFT = 0.5  # Weight for left-turn lanes
+        w_RIGHT = 1.0  # Weight for right-turn lanes
+        w_STRAIGHT_RIGHT = 1
+        w_STRAIGHT_LEFT = 0.5
+        w_STRAIGHT = (
             3.0  # Weight for straight lanes (higher to make straight more common)
         )
 
         # Calculate scores based on position
-        left_score = position * w_left
-        right_score = (total_lanes - position - 1) * w_right
-        straight_right_score = (total_lanes - position - 1) * w_straight_right
-        straight_left_score = position * w_straight_left
-        straight_score = w_straight
+        left_score = position * w_LEFT
+        right_score = (total_lanes - position - 1) * w_RIGHT
+        straight_RIGHT_score = (total_lanes - position - 1) * w_STRAIGHT_RIGHT
+        straight_LEFT_score = position * w_STRAIGHT_LEFT
+        straight_score = w_STRAIGHT
 
         total_score = (
             left_score
             + straight_score
             + right_score
-            + straight_right_score
-            + straight_left_score
+            + straight_RIGHT_score
+            + straight_LEFT_score
         )
 
         # Calculate probabilities
-        p_left = left_score / total_score
-        p_straight = straight_score / total_score
-        p_right = right_score / total_score
-        p_straight_right = straight_right_score / total_score
-        p_straight_left = straight_left_score / total_score
+        p_LEFT = left_score / total_score
+        p_STRAIGHT = straight_score / total_score
+        p_RIGHT = right_score / total_score
+        p_STRAIGHT_RIGHT = straight_RIGHT_score / total_score
+        p_STRAIGHT_LEFT = straight_LEFT_score / total_score
 
         return {
             LaneType.ALL: 0,
-            LaneType.LEFT: p_left,
-            LaneType.STRAIGHT: p_straight,
-            LaneType.RIGHT: p_right,
-            LaneType.STRAIGHT_RIGHT: p_straight_right,
-            LaneType.STRAIGHT_LEFT: p_straight_left,
+            LaneType.LEFT: p_LEFT,
+            LaneType.STRAIGHT: p_STRAIGHT,
+            LaneType.RIGHT: p_RIGHT,
+            LaneType.STRAIGHT_RIGHT: p_STRAIGHT_RIGHT,
+            LaneType.STRAIGHT_LEFT: p_STRAIGHT_LEFT,
         }
 
 

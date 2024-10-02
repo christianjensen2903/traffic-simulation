@@ -151,7 +151,7 @@ class DiscritizeSignal(gym.ObservationWrapper):
 
     def _get_lane_index(self, lane: str) -> int:
         """Get the index of the lane in the signal space. 0: Left, 1: Straight, 2: Right"""
-        return ["left", "straight", "right"].index(lane)
+        return ["LEFT", "STRAIGHT", "RIGHT"].index(lane)
 
     def _get_lane_indices(self, group_name: str) -> list[int]:
         """
@@ -160,7 +160,7 @@ class DiscritizeSignal(gym.ObservationWrapper):
         0: Left, 1: Straight, 2: Right
         """
         lanes = group_name.split("_")[1:]
-        if lanes == ["all"]:
+        if lanes == ["ALL"]:
             return [0, 1, 2]
         else:
             return [self._get_lane_index(lane) for lane in lanes]
