@@ -17,6 +17,7 @@ from generate_road import (
     index_to_direction,
     direction_to_index,
 )
+from dtos import AllowedGreenSignalCombinationDto
 from generate_random_flow import generate_random_flow
 import random
 
@@ -128,6 +129,12 @@ class SumoEnv(gym.Env):
         self.signal_groups: list[str] = config["groups"]
         self._signal_states = {group: SignalState() for group in self.signal_groups}
         self.junction = config["junction"]
+        # allowed_green_signal_combinations = [
+        #     AllowedGreenSignalCombinationDto(
+        #         name=comb["signal"][0], groups=comb["allowed"]
+        #     )
+        #     for comb in intersection["allowed_green_signal_combinations"]
+        # ]
 
         self.max_distance = 100
         self.random_state = True
@@ -279,11 +286,12 @@ class SumoEnv(gym.Env):
         """Parse the action into a dictionary"""
         action_dict = {}
         for i, a in enumerate(action):
+
             direction_index = i // len(LaneType)
             lane_index = i % len(LaneType)
             direction = index_to_direction(direction_index)
             lane_type = self._index_to_lane_type(lane_index)
-            group = f"{direction}_{lane_type.value}"
+            group = f"{direction.value}_{lane_type.value}"
             if group in self.signal_groups:
                 action_dict[group] = TrafficColor.GREEN if a else TrafficColor.RED
         return action_dict
