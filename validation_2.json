@@ -1,5 +1,306 @@
 {
-  "vehicles": [],
+  "vehicles": [
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 46.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 38.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 23.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 76.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 23.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "A2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 76.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 46.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 38.5,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "B1"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 98.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 91.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 83.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 76.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 68.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 61.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 53.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 46.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 38.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 31.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 23.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 16.0,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 8.5,
+      "leg": "B2"
+    },
+    {
+      "speed": 0.0,
+      "distance_to_stop": 1.0,
+      "leg": "B2"
+    }
+  ],
   "total_score": 126605.9479493715,
   "simulation_ticks": 310,
   "signals": [

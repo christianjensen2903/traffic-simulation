@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-07-04 11:40:22 by Eclipse SUMO netedit Version 1.15.0 -->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- Define the vehicle type -->
+    <vType id="private" accel="2.6" decel="4.5" sigma="0.5" length="5.0" maxSpeed="70"/>
+
+    <!-- Define the route -->
+    <route id="r0" edges="31552319#1"/>
+
+    <!-- Define the vehicle -->
+    <vehicle id="veh0" type="private" route="r0" depart="0"/>
+</routes>
