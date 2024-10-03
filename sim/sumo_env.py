@@ -17,7 +17,6 @@ from generate_road import (
     index_to_direction,
     direction_to_index,
 )
-from dtos import AllowedGreenSignalCombinationDto
 from generate_random_flow import generate_random_flow
 import random
 
@@ -42,7 +41,7 @@ class TrafficColor(Enum):
 
 class InternalLeg(BaseModel):
     name: str
-    lanes: list[str]
+    lanes: list[LaneType]
     groups: list[str]
     segments: list[str]
 
@@ -129,12 +128,6 @@ class SumoEnv(gym.Env):
         self.signal_groups: list[str] = config["groups"]
         self._signal_states = {group: SignalState() for group in self.signal_groups}
         self.junction = config["junction"]
-        # allowed_green_signal_combinations = [
-        #     AllowedGreenSignalCombinationDto(
-        #         name=comb["signal"][0], groups=comb["allowed"]
-        #     )
-        #     for comb in intersection["allowed_green_signal_combinations"]
-        # ]
 
         self.max_distance = 100
         self.random_state = True
@@ -349,7 +342,7 @@ class SumoEnv(gym.Env):
 
         if self.random_state:
             # choice = random.choice([3, 4])  # Either of the two val intersections
-            choice = 4
+            choice = 3
             path = f"intersections/{choice}"
             generate_random_flow(self.intersection_path, roads=self.roads)
         else:
@@ -402,14 +395,15 @@ class SumoEnv(gym.Env):
 
 if __name__ == "__main__":
     env = SumoEnv(intersection_path="intersections")
-
-    env.visualize = True
+    env.random_state = False
+    env.visualize = False
     env.reset()
     done = False
     while not done:
         # action = np.random.randint(0, 2, size=env.action_space.shape)
         action = np.zeros(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
+        print([v["distance"] for v in obs["vehicles"]["S"]])
         print(reward)
         # press any key to continue
         # input()
