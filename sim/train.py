@@ -5,7 +5,7 @@ from sumo_env import SumoEnv
 import numpy as np
 from torch import nn
 import torch
-from sumo_wrappers import BinVehicles, DiscritizeSignal, DiscretizeLegs, SimpleObs
+from sumo_wrappers import DiscritizeSignal, DiscretizeLegs, SimpleObs, TrackLanes
 from wandb.integration.sb3 import WandbCallback
 from stable_baselines3.common.callbacks import (
     BaseCallback,
@@ -34,10 +34,10 @@ if __name__ == "__main__":
 
     def create_env():
         env = SumoEnv(intersection_path="intersections")
-        # env = BinVehicles(env)
+        env = TrackLanes(env, "intersection_3")
         env = DiscritizeSignal(env)
-        # env = DiscretizeLegs(env)
-        env = SimpleObs(env)
+        env = DiscretizeLegs(env)
+        # env = SimpleObs(env)
 
         return env
 

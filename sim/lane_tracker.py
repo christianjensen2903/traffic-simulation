@@ -249,16 +249,20 @@ class LaneTracker:
             seen_vehicles.append(tracked_vehicle)
         return seen_vehicles
 
-    def update_vehicles(self, vehicles: dict):
+    def update_vehicles_for_leg(
+        self, leg: InternalLeg, vehicles: list[TrackedVehicle]
+    ) -> list[TrackedVehicle]:
+
+        seen_vehicles = self.forward_pass(leg, vehicles)
+        self.backward_pass(seen_vehicles, leg)
+        self.tracked_vehicles[leg.name] = seen_vehicles
+        return seen_vehicles
+
+    def update_vehicles(self, vehicles: dict) -> dict[str, list[TrackedVehicle]]:
         for leg_name, v in vehicles.items():
             leg = self.get_leg(leg_name)
-            seen_vehicles = self.forward_pass(leg, v)
-            self.backward_pass(seen_vehicles, leg)
-            self.tracked_vehicles[leg_name] = seen_vehicles
-
-
-# TODO: I think more could be backpropagated when many cars in a queue
-# TODO: Check if waiting times are correct
+            self.update_vehicles_for_leg(leg, v)
+        return self.tracked_vehicles
 
 
 # Should be able to say the last is left

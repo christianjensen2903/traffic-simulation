@@ -95,7 +95,7 @@ class SumoEnv(gym.Env):
         self.signals_space = spaces.Dict(
             {group: self.signal_space for group in self.signal_groups}
         )
-        self.leg_space = spaces.MultiBinary(len(LaneType))
+        self.leg_space = spaces.Text(max_length=15)
         self.legs_space = spaces.Dict(
             {leg.name: spaces.Sequence(self.leg_space) for leg in self.legs}
         )
@@ -209,10 +209,7 @@ class SumoEnv(gym.Env):
         for leg in self.legs:
             lane_info = []
             for lane in leg.lanes:
-                enc = np.zeros(self.leg_space.shape)
-                lane_type = LaneType(lane)
-                enc[list(LaneType).index(lane_type)] = 1
-                lane_info.append(enc)
+                lane_info.append(lane.value)
             info[leg.name] = lane_info
         return info
 
