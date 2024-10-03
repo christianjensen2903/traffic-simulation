@@ -67,7 +67,7 @@ if __name__ == "__main__":
     policy_kwargs = dict(
         features_extractor_class=FeatureExtractor,
         features_extractor_kwargs=dict(
-            input_channels=4,  # Replace with the actual input channels
+            input_channels=14,  # Replace with the actual input channels
             hidden_channels=32,
             hidden_kernel_size=3,
             hidden_stride=1,
@@ -79,17 +79,17 @@ if __name__ == "__main__":
             hidden_stride=1,
             blocks=4,  # Number of residual blocks
             feature_dim=2,
-            last_layer_dim_pi=304,
-            last_layer_dim_vf=304,
+            last_layer_dim_pi=104,
+            last_layer_dim_vf=104,
         ),
     )
     model = PPO(
-        # CustomActorCriticPolicy,
-        "MultiInputPolicy",
+        CustomActorCriticPolicy,
+        # "MultiInputPolicy",
         env,
         verbose=1,
         tensorboard_log=tensorboard_log,
-        # policy_kwargs=policy_kwargs,
+        policy_kwargs=policy_kwargs,
     )
 
     model.learn(

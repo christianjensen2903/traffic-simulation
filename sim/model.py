@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch
 from gymnasium import spaces
 from typing import Callable, Tuple
+from sumo_env import TrafficColor, LaneType
 from stable_baselines3.common.policies import ActorCriticPolicy
 
 
@@ -71,6 +72,10 @@ class FeatureExtractor(BaseFeaturesExtractor):
     ):
         super(FeatureExtractor, self).__init__(observation_space, features_dim=1)
 
+        self.lane_embedding = nn.Linear(len(LaneType), 15)
+
+        self.color_linear = nn.Linear(len(TrafficColor), 15)
+
         self.device = device
 
         layers = []
@@ -95,23 +100,20 @@ class FeatureExtractor(BaseFeaturesExtractor):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, observations: dict[str, torch.Tensor]) -> torch.Tensor:
-        # All observations are (batch, 4, x, y)
-        # Get the max x and y and pad the rest
-        max_x = max(observation.size(2) for observation in observations.values())
-        max_y = max(observation.size(3) for observation in observations.values())
 
-        # Pad the observations
-        padded_observations = {}
-        for key, obs in observations.items():
-            padded_observations[key] = nn.functional.pad(
-                obs,
-                (0, max_y - obs.size(3), 0, max_x - obs.size(2)),
-                mode="constant",
-                value=0,
-            )
+        # Embed the lanes
+        lanes = observations["legs"]
+        embedded_lanes = self.lane_embedding(lanes).unsqueeze(3)
 
-        # Concatenate along the feature dimension
-        concatenated = torch.cat([obs for obs in padded_observations.values()], dim=-1)
+        # Embed the colors
+        colors = observations["signals"]
+        embedded_colors = self.color_linear(colors).unsqueeze(3)
+
+        # Concatenate the embeddings with the vehicles (batch, channels, 15, 4)
+        vehicles = observations["vehicles"]
+
+        # Concatenate the embeddings with the vehicles
+        concatenated = torch.cat([embedded_lanes, embedded_colors, vehicles], dim=-1)
 
         x = self.layers(concatenated)
 
@@ -188,8 +190,9 @@ class CustomNetwork(nn.Module):
         return self.forward_actor(x), self.forward_critic(x)
 
     def forward_actor(self, features: torch.Tensor) -> torch.Tensor:
+        policy = self.policy_net(features)
 
-        return self.policy_net(features)
+        return policy
 
     def forward_critic(self, features: torch.Tensor) -> torch.Tensor:
         return self.value_net(features)

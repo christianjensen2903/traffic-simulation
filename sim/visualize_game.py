@@ -1,15 +1,16 @@
 from stable_baselines3 import PPO
 from sumo_env import SumoEnv
 
-from sumo_wrappers import BinVehicles, DiscritizeSignal, DiscretizeLegs, SimpleObs
+from sumo_wrappers import DiscritizeSignal, DiscretizeLegs, SimpleObs, TrackLanes
 import time
 
 
-model = PPO.load("ppo_sumo")
+model = PPO.load("ppo_sumo2")
 env = SumoEnv(intersection_path="intersections")
 env.visualize = True
 env = DiscritizeSignal(env)
-env = SimpleObs(env)
+env = TrackLanes(env, "intersection_3")
+env = DiscretizeLegs(env)
 
 obs, _ = env.reset()
 done = False

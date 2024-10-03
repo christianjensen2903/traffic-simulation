@@ -280,7 +280,11 @@ if __name__ == "__main__":
         action = np.ones(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
 
-        print(obs)
+        # print(obs)
+        for key, value in obs.items():
+            print(key)
+            print(value.shape)
+            print()
         input()
         steps += 1
         print(f"Reward: {reward}")
