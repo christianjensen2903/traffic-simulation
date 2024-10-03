@@ -223,12 +223,12 @@ class SimpleObs(gym.ObservationWrapper):
                 )
 
                 lane_obs = [
-                    len(vehicles_in_queue),
-                    len(vehicles_not_in_queue),
-                    max_waiting_time,
+                    len(vehicles_in_queue) / 15,
+                    len(vehicles_not_in_queue) / 15,
+                    max_waiting_time,  # Becomes very small if normalized
                     mean_waiting_time,
-                    distance_to_queue,
-                    distance_to_stop,
+                    distance_to_queue / 100,
+                    distance_to_stop / 100,
                 ]
 
                 all_lanes.append(lane_obs)
@@ -396,7 +396,7 @@ if __name__ == "__main__":
         action = np.ones(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
 
-        print(obs["vehicles"])
+        print(obs["vehicles"].shape)
 
         print()
         input()
