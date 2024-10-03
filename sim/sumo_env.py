@@ -60,7 +60,7 @@ class SumoEnv(gym.Env):
         super(SumoEnv, self).__init__()
         self.max_simulation_time = max_simulation_time
         self.intersection_path = intersection_path
-        self.load_config(f"{intersection_path}/2")
+        self.load_config(f"{intersection_path}/3")
         self.visualize = False
 
         # Max 4 incoming roads. Has to be flattened
@@ -274,9 +274,14 @@ class SumoEnv(gym.Env):
                     group
                 ]:
                     c = self._signal_states[disallowed_group].color
-                    if c in [TrafficColor.GREEN, TrafficColor.REDAMBER]:
+                    t = self._signal_states[disallowed_group].time
+                    if c == TrafficColor.REDAMBER:
                         can_change = False
                         break
+                    if c == TrafficColor.GREEN:
+                        if t <= 4:  # Can start turning green before
+                            can_change = False
+                            break
 
                 if can_change:
                     state.color = TrafficColor.REDAMBER
