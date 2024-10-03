@@ -388,56 +388,56 @@ def generate_intersection_xml(
 
 
 if __name__ == "__main__":
-    roads = [
-        Road(
-            lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
-            road_type=RoadType.HIGHWAY_PRIMARY,
-            direction=RoadDirection.N,
-        ),
-        Road(
-            lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
-            road_type=RoadType.HIGHWAY_PRIMARY,
-            direction=RoadDirection.S,
-        ),
-        Road(
-            lanes=[LaneType.RIGHT, LaneType.STRAIGHT_LEFT],
-            road_type=RoadType.HIGHWAY_PRIMARY,
-            direction=RoadDirection.E,
-        ),
-        Road(
-            lanes=[LaneType.ALL],
-            road_type=RoadType.HIGHWAY_TERTIARY,
-            direction=RoadDirection.W,
-        ),
-    ]
-
     # roads = [
     #     Road(
-    #         lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    #         lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
     #         road_type=RoadType.HIGHWAY_PRIMARY,
     #         direction=RoadDirection.N,
     #     ),
     #     Road(
-    #         lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
-    #         road_type=RoadType.HIGHWAY_SECONDARY,
+    #         lanes=[LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    #         road_type=RoadType.HIGHWAY_PRIMARY,
     #         direction=RoadDirection.S,
     #     ),
     #     Road(
-    #         lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
-    #         road_type=RoadType.HIGHWAY_TERTIARY,
+    #         lanes=[LaneType.RIGHT, LaneType.STRAIGHT_LEFT],
+    #         road_type=RoadType.HIGHWAY_PRIMARY,
     #         direction=RoadDirection.E,
     #     ),
     #     Road(
-    #         lanes=[
-    #             LaneType.STRAIGHT,
-    #             LaneType.STRAIGHT,
-    #             LaneType.LEFT,
-    #             LaneType.LEFT,
-    #             LaneType.LEFT,
-    #         ],
-    #         road_type=RoadType.HIGHWAY_PRIMARY,
+    #         lanes=[LaneType.ALL],
+    #         road_type=RoadType.HIGHWAY_TERTIARY,
     #         direction=RoadDirection.W,
     #     ),
     # ]
 
-    generate_intersection_xml(path=f"intersections/4", roads=roads)
+    roads = [
+        Road(
+            lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            road_type=RoadType.HIGHWAY_PRIMARY,
+            direction=RoadDirection.N,
+        ),
+        Road(
+            lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            road_type=RoadType.HIGHWAY_SECONDARY,
+            direction=RoadDirection.S,
+        ),
+        Road(
+            lanes=[LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+            road_type=RoadType.HIGHWAY_TERTIARY,
+            direction=RoadDirection.E,
+        ),
+        Road(
+            lanes=[
+                LaneType.STRAIGHT,
+                LaneType.STRAIGHT,
+                LaneType.LEFT,
+                LaneType.LEFT,
+                LaneType.LEFT,
+            ],
+            road_type=RoadType.HIGHWAY_PRIMARY,
+            direction=RoadDirection.W,
+        ),
+    ]
+
+    generate_intersection_xml(path=f"intersections/3", roads=roads)
