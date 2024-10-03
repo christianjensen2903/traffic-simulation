@@ -140,15 +140,17 @@ class LaneTracker:
 
         if distance > last_vehicle.distance:
             lane_index += 1
-
-        if lane_index >= len(leg.lanes):
+        try:
+            if lane_index >= len(leg.lanes):
+                possible_lanes = self.get_initial_possible_lanes(leg.name)
+                lane_index = 0
+            elif self.is_index_greater_than_last_occurrence(
+                leg.lanes, possible_lanes[0], lane_index
+            ):
+                possible_lanes.pop(0)
+        except IndexError:
             possible_lanes = self.get_initial_possible_lanes(leg.name)
             lane_index = 0
-        elif self.is_index_greater_than_last_occurrence(
-            leg.lanes, possible_lanes[0], lane_index
-        ):
-            possible_lanes.pop(0)
-
         return lane_index, possible_lanes
 
     def update_lane_info_backward(
@@ -170,15 +172,17 @@ class LaneTracker:
 
         if distance < last_vehicle.distance:
             lane_index -= 1
-
-        if lane_index < 0:
+        try:
+            if lane_index < 0:
+                possible_lanes = self.get_initial_possible_lanes(leg.name)
+                lane_index = len(leg.lanes) - 1
+            elif self.is_index_less_than_first_occurrence(
+                leg.lanes, possible_lanes[-1], lane_index
+            ):
+                possible_lanes.pop(-1)
+        except IndexError:
             possible_lanes = self.get_initial_possible_lanes(leg.name)
-            lane_index = len(leg.lanes) - 1
-        elif self.is_index_less_than_first_occurrence(
-            leg.lanes, possible_lanes[-1], lane_index
-        ):
-            possible_lanes.pop(-1)
-
+            lane_index = 0
         return lane_index, possible_lanes
 
     def get_min_index(self, lane_list: list[LaneType], lane_type: LaneType) -> int:
@@ -196,7 +200,10 @@ class LaneTracker:
         """
 
         # Go through the vehicles in reverse excluding the last vehicle
-        last_vehicle = seen_vehicles[-1]
+        try:
+            last_vehicle = seen_vehicles[-1]
+        except IndexError:
+            return
         lane_index = len(leg.lanes) - 1
         possible_lanes = self.get_initial_possible_lanes(leg.name)
         for vehicle in seen_vehicles[-2::-1]:
