@@ -56,7 +56,7 @@ class SumoEnv(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self, intersection_path: str, max_simulation_time: int = 1000):
+    def __init__(self, intersection_path: str, max_simulation_time: int = 300):
         super(SumoEnv, self).__init__()
         self.max_simulation_time = max_simulation_time
         self.intersection_path = intersection_path

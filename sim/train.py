@@ -5,7 +5,13 @@ from sumo_env import SumoEnv
 import numpy as np
 from torch import nn
 import torch
-from sumo_wrappers import DiscritizeSignal, DiscretizeLegs, SimpleObs, TrackLanes
+from sumo_wrappers import (
+    DiscritizeSignal,
+    DiscretizeLegs,
+    SimpleObs,
+    DiscretizeAndTrackLanes,
+    TrackLanes,
+)
 from wandb.integration.sb3 import WandbCallback
 from stable_baselines3.common.callbacks import (
     BaseCallback,
@@ -36,8 +42,8 @@ if __name__ == "__main__":
         env = SumoEnv(intersection_path="intersections")
         env = TrackLanes(env, "intersection_3")
         env = DiscritizeSignal(env)
-        env = DiscretizeLegs(env)
-        # env = SimpleObs(env)
+        # env = DiscretizeLegs(env)
+        env = SimpleObs(env)
 
         return env
 
@@ -67,7 +73,7 @@ if __name__ == "__main__":
     policy_kwargs = dict(
         features_extractor_class=FeatureExtractor,
         features_extractor_kwargs=dict(
-            input_channels=14,  # Replace with the actual input channels
+            input_channels=6,  # Replace with the actual input channels
             hidden_channels=32,
             hidden_kernel_size=3,
             hidden_stride=1,
@@ -79,21 +85,21 @@ if __name__ == "__main__":
             hidden_stride=1,
             blocks=4,  # Number of residual blocks
             feature_dim=2,
-            last_layer_dim_pi=104,
-            last_layer_dim_vf=104,
+            last_layer_dim_pi=312,
+            last_layer_dim_vf=312,
         ),
     )
     model = PPO(
-        CustomActorCriticPolicy,
-        # "MultiInputPolicy",
+        # CustomActorCriticPolicy,
+        "MultiInputPolicy",
         env,
         verbose=1,
         tensorboard_log=tensorboard_log,
-        policy_kwargs=policy_kwargs,
+        # policy_kwargs=policy_kwargs,
     )
 
     model.learn(
-        total_timesteps=50000,
+        total_timesteps=10000,
         log_interval=1,
         progress_bar=True,
         callback=CallbackList(callbacks),

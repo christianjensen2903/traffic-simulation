@@ -115,6 +115,9 @@ class FeatureExtractor(BaseFeaturesExtractor):
         # Concatenate the embeddings with the vehicles
         concatenated = torch.cat([embedded_lanes, embedded_colors, vehicles], dim=-1)
 
+        # Permutes the tensor to (batch, 6, 15, channels)
+        concatenated = concatenated.permute(0, 3, 1, 2)
+
         x = self.layers(concatenated)
 
         return x

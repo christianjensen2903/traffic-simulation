@@ -19,7 +19,7 @@ class DiscritizeSignal(gym.ObservationWrapper):
     def __init__(self, env: SumoEnv):
         super().__init__(env)
 
-        total_lanes = sum(len(leg.lanes) for leg in env.legs)
+        total_lanes = sum(len(list(set(leg.lanes))) for leg in env.legs)
 
         self.signals_space = spaces.Box(
             low=0,
@@ -58,7 +58,9 @@ class DiscritizeSignal(gym.ObservationWrapper):
         lights = []
 
         for leg_name, lanes in legs.items():
-            for lane in lanes:
+            unique_lanes = sorted(set(lanes))
+
+            for lane in unique_lanes:
                 signal_name = f"{leg_name[0]}_{lane}"
 
                 # Get the signal for the lane
@@ -142,13 +144,20 @@ class SimpleObs(gym.ObservationWrapper):
     def __init__(self, env: SumoEnv):
         super().__init__(env)
 
+        total_lanes = sum(len(list(set(leg.lanes))) for leg in env.legs)
+
+        # Vehicles in queue
+        # Vehicles not in queue
+        # Max waiting time
+        # Mean waiting time of vehicles in queue
+        # Distance to queue
         self.observation_space = spaces.Dict(
             {
                 "signals": env.signals_space,
                 "vehicles": spaces.Box(
                     low=0,
-                    high=90,
-                    shape=(4, 2),
+                    high=300,
+                    shape=(total_lanes, 6),
                     dtype=np.float32,
                 ),
             }
@@ -159,21 +168,76 @@ class SimpleObs(gym.ObservationWrapper):
         return direction_to_index(RoadDirection(direction))
 
     def observation(self, obs: dict) -> dict:
-        vehicles = obs["vehicles"]
+        all_vehicles = obs["vehicles"]
+        legs = obs["legs"]
+        assert isinstance(all_vehicles, dict)
+        assert isinstance(legs, dict)
 
         # Get the amount of cars stopped and not stopped in each leg
-        legs = np.zeros((4, 2))
-        for leg_name, vehicles in vehicles.items():
-            direction_index = self._get_direction_index(leg_name)
-            for vehicle in vehicles:
-                if vehicle["speed"] < 0.5:
-                    legs[direction_index][0] += 1
-                else:
-                    legs[direction_index][1] += 1
+        all_lanes = []
+        for leg_name, lanes in legs.items():
+            unique_lanes = sorted(set(lanes))
+
+            vehicles = all_vehicles[leg_name]
+            for lane in unique_lanes:
+                print(leg_name, lane)
+                vehicles_in_lane = [
+                    vehicle for vehicle in vehicles if lane in vehicle["possible_lanes"]
+                ]
+                vehicles_in_queue = [
+                    vehicle for vehicle in vehicles_in_lane if vehicle["speed"] < 0.5
+                ]
+                queue_distance = (
+                    max([vehicle["distance"] for vehicle in vehicles_in_queue])
+                    if vehicles_in_queue
+                    else 0
+                )
+                vehicles_not_in_queue = [
+                    vehicle
+                    for vehicle in vehicles_in_lane
+                    if vehicle["speed"] >= 0.5 and vehicle["distance"] > queue_distance
+                ]
+
+                max_waiting_time = (
+                    max(vehicle["waiting_time"] for vehicle in vehicles_in_lane)
+                    if vehicles_in_lane
+                    else 0
+                )
+                mean_waiting_time = (
+                    np.mean([vehicle["waiting_time"] for vehicle in vehicles_in_queue])
+                    if vehicles_in_queue
+                    else 0
+                )
+                distance_to_queue = (
+                    min(
+                        vehicle["distance"] - queue_distance
+                        for vehicle in vehicles_not_in_queue
+                    )
+                    if vehicles_not_in_queue
+                    else 100
+                )
+                distance_to_stop = (
+                    min(vehicle["distance"] for vehicle in vehicles)
+                    if vehicles
+                    else 100
+                )
+
+                lane_obs = [
+                    len(vehicles_in_queue),
+                    len(vehicles_not_in_queue),
+                    max_waiting_time,
+                    mean_waiting_time,
+                    distance_to_queue,
+                    distance_to_stop,
+                ]
+
+                all_lanes.append(lane_obs)
+
+        lanes_obs = np.array(all_lanes)
 
         return {
             "signals": obs["signals"],
-            "vehicles": legs,
+            "vehicles": lanes_obs,
         }
 
 
@@ -182,11 +246,63 @@ class TrackLanes(gym.ObservationWrapper):
         super().__init__(env)
         self.lane_tracker = LaneTracker(env, intersection)
 
+        self.vehicle_space = spaces.Dict(
+            {
+                "speed": spaces.Box(low=0, high=30, shape=(1,), dtype=np.float32),
+                "distance": spaces.Box(low=0, high=100, shape=(1,), dtype=np.float32),
+                "waiting_time": spaces.Box(
+                    low=0, high=300, shape=(1,), dtype=np.float32
+                ),
+                "possible_lanes": spaces.Text(max_length=20),
+            }
+        )
+
+        self.vehicles_space = spaces.Dict(
+            {leg.name: spaces.Sequence(self.vehicle_space) for leg in self.legs}
+        )
+
+        self.observation_space = spaces.Dict(
+            {
+                "signals": env.signals_space,
+                "vehicles": env.vehicles_space,
+                "legs": env.legs_space,
+            }
+        )
+
+    def observation(self, obs: dict) -> dict:
+        vehicles = obs["vehicles"]
+        assert isinstance(vehicles, dict)
+
+        updated_vehicles = {}
+
+        for leg_name, vehicles in vehicles.items():
+            leg = self.lane_tracker.get_leg(leg_name)
+            tracked_vehicles = self.lane_tracker.update_vehicles_for_leg(leg, vehicles)
+            updated_vehicles[leg_name] = [
+                {
+                    "speed": vehicle.speed,
+                    "distance": vehicle.distance,
+                    "waiting_time": vehicle.waiting_time,
+                    "possible_lanes": [lane.name for lane in vehicle.possible_lanes],
+                }
+                for vehicle in tracked_vehicles
+            ]
+
+        obs["vehicles"] = updated_vehicles
+
+        return obs
+
+
+class DiscretizeAndTrackLanes(gym.ObservationWrapper):
+    def __init__(self, env: SumoEnv, intersection: str):
+        super().__init__(env)
+        self.lane_tracker = LaneTracker(env, intersection)
+
         total_lanes = sum(len(leg.lanes) for leg in env.legs)
 
         self.vehicles_space = spaces.Box(
             low=0,
-            high=200,  # It don't think there would be more than 200 vehicles in a bin
+            high=300,
             shape=(
                 total_lanes,
                 15,  # Max 15 cars
@@ -235,7 +351,7 @@ class TrackLanes(gym.ObservationWrapper):
 
                 normalized_distance = car.distance / 100
                 normalized_speed = car.speed / 27.78
-                normalized_waiting_time = min(1, car.waiting_time / 90)
+                normalized_waiting_time = min(1, car.waiting_time / 150)
 
                 features = [
                     1,
@@ -270,8 +386,8 @@ if __name__ == "__main__":
 
     env = DiscritizeSignal(env)
     env = TrackLanes(env, "intersection_4")
-    env = DiscretizeLegs(env)
-    # env = SimpleObs(env)
+    # env = DiscretizeLegs(env)
+    env = SimpleObs(env)
 
     obs, _ = env.reset()
     done = False
@@ -280,11 +396,9 @@ if __name__ == "__main__":
         action = np.ones(env.action_space.shape)
         obs, reward, done, _, _ = env.step(action)
 
-        # print(obs)
-        for key, value in obs.items():
-            print(key)
-            print(value.shape)
-            print()
+        print(obs["vehicles"])
+
+        print()
         input()
         steps += 1
         print(f"Reward: {reward}")
