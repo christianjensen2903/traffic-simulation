@@ -24,6 +24,7 @@ def generate_lanes(roads: list[Road]) -> list[Lane]:
     ]
 
 
+# TODO: Maybe make more advanced if enough lanes to do it anyway
 def is_conflicting(l1: Lane, l2: Lane) -> bool:
     """Check if two lanes are conflicting"""
 

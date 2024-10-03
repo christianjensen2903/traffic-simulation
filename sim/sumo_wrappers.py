@@ -180,7 +180,7 @@ class SimpleObs(gym.ObservationWrapper):
 
             vehicles = all_vehicles[leg_name]
             for lane in unique_lanes:
-                print(leg_name, lane)
+                # print(leg_name, lane)
                 vehicles_in_lane = [
                     vehicle for vehicle in vehicles if lane in vehicle["possible_lanes"]
                 ]
