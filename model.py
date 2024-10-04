@@ -100,7 +100,6 @@ class FeatureExtractor(BaseFeaturesExtractor):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, observations: dict[str, torch.Tensor]) -> torch.Tensor:
-
         # Embed the lanes
         lanes = observations["legs"]
         embedded_lanes = self.lane_embedding(lanes).unsqueeze(3)
@@ -124,7 +123,6 @@ class FeatureExtractor(BaseFeaturesExtractor):
 
 
 class Head(nn.Module):
-
     def __init__(
         self,
         input_channels: int,
@@ -152,7 +150,6 @@ class Head(nn.Module):
 
 
 class CustomNetwork(nn.Module):
-
     def __init__(
         self,
         hidden_channels: int,

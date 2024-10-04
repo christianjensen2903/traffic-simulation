@@ -6,7 +6,6 @@ from environment import load_and_run_simulation
 
 
 def run_game():
-
     test_duration_seconds = 600
     is_random = True
     configuration_file = "intersections/2/configuration.yaml"
@@ -39,7 +38,6 @@ def run_game():
     actions = {}
 
     while True:
-
         state = output_queue.get()
 
         if state.is_terminated:

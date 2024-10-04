@@ -53,7 +53,6 @@ def generate_edge_xml(
     road: Road,
     degrees: int = 0,
 ) -> str:
-
     xml = f"""
     <edge id="{edge_id}" from="{from_node}" to="{to_node}" name="{edge_id}" priority="11" type="{road.road_type.value}" spreadType="center" shape="{shape_to_string(shape)}">"""
     for i, lane in enumerate(road.lanes):
@@ -92,7 +91,6 @@ def generate_connection_xml(
     tl: str | None = None,
     linkIndex: int | None = None,
 ) -> str:
-
     if lane_type == LaneType.STRAIGHT:
         dir = "s"
     elif lane_type == LaneType.LEFT:
@@ -160,7 +158,6 @@ def generate_intersection_xml(
     connections: list[Connection] = []
 
     for road in roads:
-
         degrees = direction_angles[road.direction]
 
         # Rotate shape resembling S1

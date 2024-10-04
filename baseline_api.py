@@ -46,9 +46,9 @@ E = 1
 S = 2
 W = 3
 
+
 @app.post("/predict", response_model=TrafficSimulationPredictResponseDto)
 def predict_endpoint(request: TrafficSimulationPredictRequestDto):
-
     # Decode request
     data = request
     vehicles = data.vehicles
@@ -65,14 +65,16 @@ def predict_endpoint(request: TrafficSimulationPredictRequestDto):
     else:
         intersectionID = 0
 
-    obs = {"vehicles" : [{"distance" : v.distance_to_stop, "speed" : v.speed} for v in vehicles]}
+    obs = {
+        "vehicles": [
+            {"distance": v.distance_to_stop, "speed": v.speed} for v in vehicles
+        ]
+    }
 
     action, algo_state = baseline_algorithm(intersectionID, obs, algo_state)
 
     # Convert the algorithm's action format to the expected response format
     response = TrafficSimulationPredictResponseDto()
-
-
 
     if intersectionID == 0:
         # ['A1', 'A1LeftTurn', 'A2', 'A2LeftTurn', 'B1', 'B1LeftTurn', 'B2', 'B2LeftTurn']
@@ -82,19 +84,28 @@ def predict_endpoint(request: TrafficSimulationPredictRequestDto):
         # W = B1: All lanes=['Left', 'Main', 'Main']
 
         signals = [
-            SignalDto(name="A1RightTurn", state="green" if action[N, RIGHT] == 1 else "red"),
+            SignalDto(
+                name="A1RightTurn", state="green" if action[N, RIGHT] == 1 else "red"
+            ),
             SignalDto(name="A1", state="green" if action[N, STRAIGHT] == 1 else "red"),
-            SignalDto(name="A1LeftTurn", state="green" if action[N, LEFT] == 1 else "red"),
-            
-            SignalDto(name="B2RightTurn", state="green" if action[E, RIGHT] == 1 else "red"),
-            SignalDto(name="B2", state="green" if action[E, STRAIGHT_LEFT] == 1 else "red"),
-            
-            SignalDto(name="A2RightTurn", state="green" if action[S, RIGHT] == 1 else "red"),
+            SignalDto(
+                name="A1LeftTurn", state="green" if action[N, LEFT] == 1 else "red"
+            ),
+            SignalDto(
+                name="B2RightTurn", state="green" if action[E, RIGHT] == 1 else "red"
+            ),
+            SignalDto(
+                name="B2", state="green" if action[E, STRAIGHT_LEFT] == 1 else "red"
+            ),
+            SignalDto(
+                name="A2RightTurn", state="green" if action[S, RIGHT] == 1 else "red"
+            ),
             SignalDto(name="A2", state="green" if action[S, STRAIGHT] == 1 else "red"),
-            SignalDto(name="A2LeftTurn", state="green" if action[S, LEFT] == 1 else "red"),
-            
-            SignalDto(name="B2", state="green" if action[W, ALL] == 1 else "red")
-            ]
+            SignalDto(
+                name="A2LeftTurn", state="green" if action[S, LEFT] == 1 else "red"
+            ),
+            SignalDto(name="B2", state="green" if action[W, ALL] == 1 else "red"),
+        ]
 
     elif intersectionID == 1:
         # ['A1', 'A1RightTurn', 'A1LeftTurn', 'A2', 'A2RightTurn', 'A2LeftTurn', 'B1', 'B1RightTurn', 'B2']
@@ -104,20 +115,28 @@ def predict_endpoint(request: TrafficSimulationPredictRequestDto):
         # W = B1: All
 
         signals = [
-            SignalDto(name="A1RightTurn", state="green" if action[N, RIGHT] == 1 else "red"),
+            SignalDto(
+                name="A1RightTurn", state="green" if action[N, RIGHT] == 1 else "red"
+            ),
             SignalDto(name="A1", state="green" if action[N, STRAIGHT] == 1 else "red"),
-            SignalDto(name="A1LeftTurn", state="green" if action[N, LEFT] == 1 else "red"),
-            
-            SignalDto(name="B2RightTurn", state="green" if action[E, RIGHT] == 1 else "red"),
-            SignalDto(name="B2", state="green" if action[E, STRAIGHT_LEFT] == 1 else "red"),
-            
-            SignalDto(name="A2RightTurn", state="green" if action[S, RIGHT] == 1 else "red"),
+            SignalDto(
+                name="A1LeftTurn", state="green" if action[N, LEFT] == 1 else "red"
+            ),
+            SignalDto(
+                name="B2RightTurn", state="green" if action[E, RIGHT] == 1 else "red"
+            ),
+            SignalDto(
+                name="B2", state="green" if action[E, STRAIGHT_LEFT] == 1 else "red"
+            ),
+            SignalDto(
+                name="A2RightTurn", state="green" if action[S, RIGHT] == 1 else "red"
+            ),
             SignalDto(name="A2", state="green" if action[S, STRAIGHT] == 1 else "red"),
-            SignalDto(name="A2LeftTurn", state="green" if action[S, LEFT] == 1 else "red"),
-            
-            SignalDto(name="B2", state="green" if action[W, ALL] == 1 else "red")
-            ]
-
+            SignalDto(
+                name="A2LeftTurn", state="green" if action[S, LEFT] == 1 else "red"
+            ),
+            SignalDto(name="B2", state="green" if action[W, ALL] == 1 else "red"),
+        ]
 
     response = TrafficSimulationPredictResponseDto(signals=signals)
 
@@ -125,23 +144,17 @@ def predict_endpoint(request: TrafficSimulationPredictRequestDto):
     return response
 
 
-
-
-
-
 def convert_ambolt_state_to_gym_state(request: TrafficSimulationPredictRequestDto):
-
-    vehicles = [{"distance" : v.distance_to_stop, "speed" : v.speed} for v in request.vehicles]
-
-
+    vehicles = [
+        {"distance": v.distance_to_stop, "speed": v.speed} for v in request.vehicles
+    ]
 
     return {
-                "vehicles": vehicles,
-                "signals": signals,
-                "legs": legs,
-            }
+        "vehicles": vehicles,
+        "signals": signals,
+        "legs": legs,
+    }
 
 
 if __name__ == "__main__":
-
     uvicorn.run("api:app", host=HOST, port=PORT)

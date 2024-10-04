@@ -20,8 +20,7 @@ if __name__ == "__main__":
     env.visualize = True
     env.reset()
 
-
-    action = np.zeros((4,6))
+    action = np.zeros((4, 6))
     action[EAST_, STRAIGHT_LEFT] = 1
 
     loss = 0

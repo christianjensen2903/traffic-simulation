@@ -103,41 +103,69 @@ LANE_CPS_PHASE_TICKS = len(LANE_RATE_ESTIMATION_CYCLE) * LANE_CPS_PHASE_CYCLE_TI
 
 CYCLE_TIME = 10
 """Amount of ticks before switching in the exploitation phase"""
-EXPLOIT_CYCLE_COMPLEX = [
-    [
-        (NORTH, STRAIGHT),
-        (NORTH, RIGHT),
-        (SOUTH, STRAIGHT),
-        (SOUTH, RIGHT),
-        (EAST_, RIGHT),
-    ],
-    [(NORTH, LEFT), (SOUTH, LEFT), (EAST_, RIGHT), (NORTH, RIGHT), (SOUTH, RIGHT)],
-    [(EAST_, STRAIGHT_LEFT), (EAST_, RIGHT), (SOUTH, RIGHT), (NORTH, RIGHT)],
-    [(WEST_, ALL), (NORTH, RIGHT), (SOUTH, RIGHT), (EAST_, RIGHT), (NORTH, RIGHT)],
-    [(SOUTH, RIGHT), (NORTH, RIGHT), (EAST_, RIGHT)],
-    [(NORTH, LEFT), (SOUTH, LEFT), (EAST_, RIGHT), (NORTH, RIGHT), (SOUTH, RIGHT)],
-]
 
-EXPLOIT_CYCLE_SIMPLE_AF = [
-    [(NORTH, LEFT)],
-    [(NORTH, STRAIGHT)],
-    [(NORTH, RIGHT)],
-    [(SOUTH, LEFT)],
-    [(SOUTH, STRAIGHT)],
-    [(EAST_, STRAIGHT_LEFT)],
-    [(EAST_, RIGHT)],
-    [(WEST_, ALL)],
-]
-EXPLOIT_CYCLE = EXPLOIT_CYCLE_COMPLEX
 WARMUP_TICKS = 10
 
 
 class RulebasedModel:
+    def __init__(self, tracker: LaneTracker, legs: dict[str, list[LaneType]], is_first : bool):
+        self.EXPLOIT_CYCLE_INTERSECTION_FIRST = [
+            [(NORTH, STRAIGHT), (SOUTH, STRAIGHT)],
+            [(EAST_, STRAIGHT), (WEST_, STRAIGHT)],
+            [(EAST_, STRAIGHT), (EAST_, LEFT)],
+            [(WEST_, STRAIGHT), (WEST_, LEFT)],
+            [(NORTH, STRAIGHT), (NORTH, LEFT)],
+            [(SOUTH, STRAIGHT), (SOUTH, LEFT)],
+            [(NORTH, LEFT), (SOUTH, LEFT)],
+            [(EAST_, LEFT), (WEST_, LEFT)],
+        ]
+        self.EXPLOIT_CYCLE_INTERSECTION_SECOND = [
+            [
+                (NORTH, STRAIGHT),
+                (NORTH, RIGHT),
+                (SOUTH, STRAIGHT),
+                (SOUTH, RIGHT),
+                (EAST_, RIGHT),
+            ],
+            [
+                (NORTH, LEFT),
+                (SOUTH, LEFT),
+                (EAST_, RIGHT),
+                (NORTH, RIGHT),
+                (SOUTH, RIGHT),
+            ],
+            [(EAST_, STRAIGHT_LEFT), (EAST_, RIGHT), (SOUTH, RIGHT), (NORTH, RIGHT)],
+            [
+                (WEST_, ALL),
+                (NORTH, RIGHT),
+                (SOUTH, RIGHT),
+                (EAST_, RIGHT),
+                (NORTH, RIGHT),
+            ],
+            [(SOUTH, RIGHT), (NORTH, RIGHT), (EAST_, RIGHT)],
+            [
+                (NORTH, LEFT),
+                (SOUTH, LEFT),
+                (EAST_, RIGHT),
+                (NORTH, RIGHT),
+                (SOUTH, RIGHT),
+            ],
+        ]
 
-    def __init__(self, tracker: LaneTracker, legs: dict[str, list[LaneType]]):
-        self.reset(tracker, legs)
+        if is_first:
+            self.EXPLOIT_CYCLE = self.EXPLOIT_CYCLE_INTERSECTION_FIRST
+        else:
+            self.EXPLOIT_CYCLE = self.EXPLOIT_CYCLE_INTERSECTION_SECOND
 
-    def reset(self, tracker: LaneTracker, legs: dict[str, list[LaneType]]):
+        self.reset(tracker, legs, is_first=is_first)
+
+    def reset(self, tracker: LaneTracker, legs: dict[str, list[LaneType]], is_first : bool):
+        
+        if is_first:
+            self.EXPLOIT_CYCLE = self.EXPLOIT_CYCLE_INTERSECTION_FIRST
+        else:
+            self.EXPLOIT_CYCLE = self.EXPLOIT_CYCLE_INTERSECTION_SECOND
+        
         self.tracker = tracker
         self.legs = legs
         self.time = 1
@@ -152,10 +180,9 @@ class RulebasedModel:
         self.cost_minimizing_choice = []
 
     def get_action(self, obs: dict):
-
         ###### Time starts at 1. Set all the lights to the first combination.
         if self.time == 1:
-            for leg, light in EXPLOIT_CYCLE[0]:
+            for leg, light in self.EXPLOIT_CYCLE[0]:
                 self.action[leg, light] = 1
                 self.new_action[leg, light] = 1
 
@@ -168,11 +195,10 @@ class RulebasedModel:
         if (
             obs
         ):  # if the observation is not None - it will be None in the very first tick
-
             for leg, light in self.cost_minimizing_choice:
                 old_guess = self.estimated_in_lane[(leg, light)]
                 self.estimated_in_lane[(leg, light)] = max(old_guess - 6.0 / 14.0, 0)
-            
+
             for leg in list(self.legs.keys()):
                 try:
                     self.count_in_leg[leg] = len(obs["vehicles"][leg])
@@ -185,14 +211,19 @@ class RulebasedModel:
                 self.estimated_count_in_leg[leg] += self.estimated_in_lane[(leg, light)]
 
             for leg in LEGS:
-                car_increment = self.estimated_count_in_leg[leg] - self.count_in_leg[leg]
+                car_increment = (
+                    self.estimated_count_in_leg[leg] - self.count_in_leg[leg]
+                )
                 for leg2, light in VALID_LANES:
                     if leg != leg2:  # we don't need to distribute to other legs
                         continue
                     if (
-                        leg2,
-                        light,
-                    ) in self.cost_minimizing_choice:  # we don't need to distribute to lanes where we trust the count
+                        (
+                            leg2,
+                            light,
+                        )
+                        in self.cost_minimizing_choice
+                    ):  # we don't need to distribute to lanes where we trust the count
                         continue
                     if N_LEG_LANES[leg] == 1:
                         self.estimated_in_lane[(leg2, light)] = self.count_in_leg[leg]
@@ -230,10 +261,8 @@ class RulebasedModel:
 
         # turn on new lights
         if self.time % CYCLE_TIME == 0:
-
             costs = []
-            for combination in EXPLOIT_CYCLE:
-
+            for combination in self.EXPLOIT_CYCLE:
                 cost_increment = 0
                 for leg, light in combination:
                     vehicles = self.tracker.tracked_vehicles[NESW_MAP[leg]]
@@ -247,7 +276,7 @@ class RulebasedModel:
                         leg_cost = 0
                         for v in vehicles:
                             current_cost = (
-                                v.waiting_time + max(0, v.waiting_time - 90) ** 1.5
+                                v.waiting_time + max(0, v.waiting_time - 60) ** 1.5
                             )
                             leg_cost += current_cost
 
@@ -258,7 +287,7 @@ class RulebasedModel:
                         cost_increment += lane_weight * leg_cost
                         for v, prob_of_car_in_lane in cars_controlled_by_light:
                             current_cost = (
-                                v.waiting_time + max(0, v.waiting_time - 90) ** 1.5
+                                v.waiting_time + max(0, v.waiting_time - 60) ** 1.5
                             )
                             cost_increment += prob_of_car_in_lane * current_cost
 
@@ -266,7 +295,7 @@ class RulebasedModel:
 
             idx = np.argmax(costs)
 
-            self.cost_minimizing_choice = EXPLOIT_CYCLE[idx]
+            self.cost_minimizing_choice = self.EXPLOIT_CYCLE[idx]
             # reset our choice of new action, but
             self.new_action *= 0
             for leg, light in self.cost_minimizing_choice:
@@ -280,8 +309,6 @@ class RulebasedModel:
 
         self.time += 1
 
-        self.action *= 0
-        self.action[NORTH, STRAIGHT] = 1
         return self.action.flatten()
 
 

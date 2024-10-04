@@ -19,9 +19,9 @@ segment_threshold_lookup = {
         "S": [],
     },
     "intersection_2": {"W": [], "E": [21], "N": [], "S": []},
-    "intersection_3": {"W_1": [], "E_1": [], "N_1": [], "S_1": []},
-    "intersection_4": {"W_1": [], "E_1": [21], "N_1": [], "S_1": []},
-    "test_intersection": {"W_1": [], "E_1": [], "N_1": [], "S_1": []},
+    "intersection_3": {"W": [], "E": [], "N": [], "S": []},
+    "intersection_4": {"W": [], "E": [21], "N": [], "S": []},
+    "test_intersection": {"W": [], "E": [], "N": [], "S": []},
 }
 
 
@@ -58,24 +58,31 @@ class LaneTracker:
         distance: float,
         possible_lanes: list[LaneType],
         speed: float,
-    ):# -> TrackedVehicle | None:
+    ):  # -> TrackedVehicle | None:
         """Finds the vehicles in the leg and updates the vehicle if found"""
-        for vehicle in self.tracked_vehicles[leg_name]:
+        
+        try:
+            the_list = self.tracked_vehicles[leg_name]
+        except KeyError:
+            the_list = self.tracked_vehicles[leg_name[0]]
+        
+        for vehicle in the_list:
             old_distance = distance + speed
 
             if vehicle.distance == old_distance:
                 for lane in possible_lanes:
                     if lane in vehicle.possible_lanes:
-
                         vehicle.distance = distance
                         vehicle.speed = speed
                         if speed < 0.5:
                             vehicle.waiting_time += 1
                         return vehicle
-        
+
         try:
             tracked_vehicle = TrackedVehicle(
-                distance=distance, speed=speed, possible_lanes=[lane.value for lane in possible_lanes]
+                distance=distance,
+                speed=speed,
+                possible_lanes=[lane.value for lane in possible_lanes],
             )
         except Exception as e:
             print(possible_lanes)
@@ -120,12 +127,18 @@ class LaneTracker:
 
     def get_segment_threshold_forward(self, leg_name: str, distance: float) -> float:
         """Get the threshold for the leg and distance"""
-        thresholds = self.segment_thresholds[leg_name]
+        try:
+            thresholds = self.segment_thresholds[leg_name]
+        except KeyError:
+            thresholds = self.segment_thresholds[leg_name[0]]
         return min([t for t in thresholds if distance < t], default=float("inf"))
 
     def get_segment_threshold_backward(self, leg_name: str, distance: float) -> float:
         """Get the threshold for the leg and distance"""
-        thresholds = self.segment_thresholds[leg_name]
+        try:
+            thresholds = self.segment_thresholds[leg_name]
+        except KeyError:
+            thresholds = self.segment_thresholds[leg_name[0]]
         return max([t for t in thresholds if distance > t], default=float("-inf"))
 
     def update_lane_info_forward(
@@ -202,7 +215,9 @@ class LaneTracker:
         """Get the maximum index of the lane_type in the lane_list"""
         return len(lane_list) - 1 - lane_list[::-1].index(lane_type)
 
-    def backward_pass(self, seen_vehicles: list[TrackedVehicle], leg_name : str, lanes : list[LaneType]):
+    def backward_pass(
+        self, seen_vehicles: list[TrackedVehicle], leg_name: str, lanes: list[LaneType]
+    ):
         """
         Go through the vehicles in reverse and remove lanes that are not possible.
         This time it is by the possible lanes ordered left to right
@@ -244,13 +259,11 @@ class LaneTracker:
         last_vehicle: TrackedVehicle | None = None
         seen_vehicles = []
         for vehicle in vehicles:
-            
             try:
                 distance = vehicle["distance"]
             except:
                 distance = vehicle["distance_to_stop"]
-            
-            
+
             speed = vehicle["speed"]
 
             if last_vehicle:
@@ -279,7 +292,6 @@ class LaneTracker:
     def update_vehicles_for_leg(
         self, leg_name: str, lanes: list[LaneType], vehicles: list[TrackedVehicle]
     ) -> list[TrackedVehicle]:
-
         seen_vehicles = self.forward_pass(leg_name, lanes, vehicles)
         self.backward_pass(seen_vehicles, leg_name, lanes)
         self.tracked_vehicles[leg_name] = seen_vehicles

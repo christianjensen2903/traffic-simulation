@@ -9,7 +9,6 @@ from generate_intersection import (
 
 
 def generate_random_flow(path: str, roads: list[Road]) -> None:
-
     rou_xml = """<?xml version="1.0" encoding="UTF-8"?>
 
     <!-- generated on 2024-07-04 11:40:22 by Eclipse SUMO netedit Version 1.15.0

@@ -55,7 +55,6 @@ def get_lane_target_directions(
 def adjust_roads_after_leg_removal(
     roads: list[Road], removed_direction: RoadDirection
 ) -> None:
-
     for road in roads:
         new_lanes = []
         for lane in road.lanes:

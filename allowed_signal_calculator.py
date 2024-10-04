@@ -56,7 +56,6 @@ def is_conflicting(l1: Lane, l2: Lane) -> bool:
     # Conflict rules
     # Left turn conflicts
     if l1.lane_type == LaneType.LEFT:
-
         if l2.lane_type == LaneType.ALL:
             return True
 

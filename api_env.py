@@ -7,7 +7,6 @@ from sim.dtos import VehicleDto, SignalDto, LegDto, TrafficSimulationPredictRequ
 
 
 class RequestConverter:
-
     def __init__(self, legs: dict[str, list[LaneType]]):
         self.amber_time = 4
         self.red_amber_time = 2
@@ -26,7 +25,9 @@ class RequestConverter:
             return "E"
 
     def convert_vehicles(self, vehicles: list[VehicleDto]) -> dict[str, list[dict]]:
-        converted_vehicles: dict[str, list[dict]] = {n: [] for n in ["N", "S", "W", "E"]}
+        converted_vehicles: dict[str, list[dict]] = {
+            n: [] for n in ["N", "S", "W", "E"]
+        }
         for vehicle in vehicles:
             leg_name = self.convert_leg_naming(vehicle.leg)
             if leg_name not in converted_vehicles:
@@ -127,12 +128,10 @@ class RequestConverter:
         """Parse the action into a dictionary"""
         action_dict = {}
 
-        action = action.reshape((4,6))
+        action = action.reshape((4, 6))
         action = action.flatten()
 
-
         for i, a in enumerate(action):
-
             direction_index = i // len(LaneType)
             lane_index = i % len(LaneType)
             direction = index_to_direction(direction_index)
@@ -145,7 +144,7 @@ class RequestConverter:
         # print(action_dict)
         return action_dict
 
-    #def update_signals(self, action: np.ndarray) -> None:
+    # def update_signals(self, action: np.ndarray) -> None:
     #    parsed_action = self._parse_action(action)
     #    self._update_traffic_lights(parsed_action)
 
@@ -160,11 +159,11 @@ class RequestConverter:
         if self.signal_states == {}:
             self.initialize_signals(legs)
 
-        #signals = self.convert_signals(request.signals)
+        # signals = self.convert_signals(request.signals)
 
         return {
             "vehicles": vehicles,
-            #"signals": signals,
+            # "signals": signals,
             "legs": legs,
         }
 

@@ -128,7 +128,6 @@ class TrafficSimulationEnvHandler:
         red_amber_time: int,
         min_green_time: int,
     ) -> None:
-
         # Initialize simulation
         self._game_ticks = 0
         self._total_score = 0
@@ -290,7 +289,6 @@ class TrafficSimulationEnvHandler:
         return ";".join(logic_errors)
 
     def set_next_signals(self, next_groups):
-
         errors = self._validate_next_signals(next_groups)
 
         return errors
@@ -378,7 +376,6 @@ class TrafficSimulationEnvHandler:
         )
 
     def _update_vehicles(self):
-
         observed_vehicles = []
 
         for leg in self._internal_legs:
@@ -428,7 +425,6 @@ class TrafficSimulationEnvHandler:
 
                     signal_logic_errors = self.set_next_signals(next_groups)
                     if self._error_queue and signal_logic_errors:
-
                         self._error_queue.put(signal_logic_errors)
 
                 self._update_group_states()
@@ -459,7 +455,6 @@ class TrafficSimulationEnvHandler:
             self._output_queue.put(self.observable_state)
 
     def run_simulation(self):
-
         self._simulation_is_running = True
 
         logger.info("Traffic simulation - starting sumo....")

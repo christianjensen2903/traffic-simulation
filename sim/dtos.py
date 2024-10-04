@@ -1,23 +1,28 @@
 from typing import List
 from pydantic import BaseModel
 
+
 class VehicleDto(BaseModel):
     speed: float
     distance_to_stop: float
     leg: str
 
+
 class SignalDto(BaseModel):
     name: str
     state: str
+
 
 class LegDto(BaseModel):
     name: str
     lanes: List[str]
     signal_groups: List[str]
 
+
 class AllowedGreenSignalCombinationDto(BaseModel):
     name: str
     groups: List[str]
+
 
 class TrafficSimulationPredictRequestDto(BaseModel):
     vehicles: List[VehicleDto]
@@ -38,4 +43,3 @@ class TrafficSimulationPredictResponseDto(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-

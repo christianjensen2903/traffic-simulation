@@ -126,7 +126,6 @@ class DiscretizeLegs(gym.ObservationWrapper):
         all_lanes = []
         for lanes in legs.values():
             for lane in lanes:
-
                 # One hot encode the lane
                 lane_enc = np.zeros(len(LaneType))
                 lane_index = self._get_lane_index(lane)
@@ -348,7 +347,6 @@ class DiscretizeAndTrackLanes(gym.ObservationWrapper):
         road = np.zeros((len(lanes), 15, 4))
         for i, lane in enumerate(sorted_cars):
             for j, car in enumerate(lane):
-
                 normalized_distance = car.distance / 100
                 normalized_speed = car.speed / 27.78
                 normalized_waiting_time = min(1, car.waiting_time / 150)

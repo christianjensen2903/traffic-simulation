@@ -153,7 +153,7 @@ class SumoEnv(gym.Env):
         self._delay_penality_threshold = 90
         self._warm_up_ticks = 10
 
-    def _get_distance_to_stop(self, vehicle):# -> float | None:
+    def _get_distance_to_stop(self, vehicle):  # -> float | None:
         for intersection, _, distance, _ in self._traci_connection.vehicle.getNextTLS(
             vehicle
         ):
@@ -261,31 +261,11 @@ class SumoEnv(gym.Env):
             ):
                 state.color = TrafficColor.GREEN
                 state.time = 0
+            elif state.color == TrafficColor.RED and desired_color == TrafficColor.GREEN:
+                state.color = TrafficColor.REDAMBER
+                state.time = 0
             else:  # Not ready to shift or not legal change
                 state.time += 1
-
-        for group, state in self._signal_states.items():
-            desired_color = action.get(group, TrafficColor.RED)
-
-            if state.color == TrafficColor.RED and desired_color == TrafficColor.GREEN:
-
-                can_change = True
-                for disallowed_group in self.disallowed_green_signal_combinations[
-                    group
-                ]:
-                    c = self._signal_states[disallowed_group].color
-                    t = self._signal_states[disallowed_group].time
-                    if c == TrafficColor.REDAMBER:
-                        can_change = False
-                        break
-                    if c == TrafficColor.GREEN:
-                        if t <= 4:  # Can start turning green before
-                            can_change = False
-                            break
-
-                if can_change:
-                    state.color = TrafficColor.REDAMBER
-                    state.time = 0
 
         # Set colors in SUMO
         phase_string = self._get_phase_string()
@@ -303,7 +283,6 @@ class SumoEnv(gym.Env):
         """Parse the action into a dictionary"""
         action_dict = {}
         for i, a in enumerate(action):
-
             direction_index = i // len(LaneType)
             lane_index = i % len(LaneType)
             direction = index_to_direction(direction_index)
@@ -363,10 +342,9 @@ class SumoEnv(gym.Env):
         return observation, reward, done, False, {}  # No extra info or truncated
 
     def reset(self, seed=None, options=None):
-
         if self.random_state:
             # choice = random.choice([3, 4])  # Either of the two val intersections
-            choice = 1
+            choice = 3
             path = f"intersections/{choice}"
             generate_random_flow(self.intersection_path, roads=self.roads)
         else:
