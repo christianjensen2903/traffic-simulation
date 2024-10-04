@@ -50,7 +50,7 @@ class RequestConverter:
     def initialize_signals(self, legs: dict[str, list[LaneType]]) -> None:
         for leg_name, lanes in legs.items():
             for lane in lanes:
-                group_name = f"{leg_name}_1_{lane.value}"
+                group_name = f"{leg_name}_1_{lane}"
                 self.signal_states[group_name] = SignalState()
 
     def convert_legs(self, leg: LegDto) -> dict[str, list[LaneType]]:
@@ -144,10 +144,10 @@ class RequestConverter:
 
     def convert_request(self, request: TrafficSimulationPredictRequestDto) -> dict:
         vehicles = self.convert_vehicles(request.vehicles)
-        legs = self.convert_legs(request.legs)
+        legs = {leg.name: self.convert_legs(leg) for leg in request.legs}
 
         if self.signal_states == {}:
-            self.initialize_signals(request.legs)
+            self.initialize_signals(legs)
 
         signals = self.convert_signals(request.signals)
 

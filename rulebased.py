@@ -169,28 +169,30 @@ class RulebasedModel:
             obs
         ):  # if the observation is not None - it will be None in the very first tick
 
-            for leg, light in cost_minimizing_choice:
+            for leg, light in self.cost_minimizing_choice:
                 old_guess = self.estimated_in_lane[(leg, light)]
                 self.estimated_in_lane[(leg, light)] = max(old_guess - 6.0 / 14.0, 0)
-
+            
             for leg in list(self.legs.keys()):
-                self.count_in_leg[leg] = len(obs["vehicles"][leg])
-
+                try:
+                    self.count_in_leg[leg] = len(obs["vehicles"][leg])
+                except KeyError:
+                    self.count_in_leg[leg] = 0
             # now, the estimated_in_lane counts must sum to the amount in the entire leg
             # distribute the difference onto all other
-            estimated_count_in_leg = defaultdict(float)
+            self.estimated_count_in_leg = defaultdict(float)
             for leg, light in VALID_LANES:
-                estimated_count_in_leg[leg] += self.estimated_in_lane[(leg, light)]
+                self.estimated_count_in_leg[leg] += self.estimated_in_lane[(leg, light)]
 
             for leg in LEGS:
-                car_increment = estimated_count_in_leg[leg] - self.count_in_leg[leg]
+                car_increment = self.estimated_count_in_leg[leg] - self.count_in_leg[leg]
                 for leg2, light in VALID_LANES:
                     if leg != leg2:  # we don't need to distribute to other legs
                         continue
                     if (
                         leg2,
                         light,
-                    ) in cost_minimizing_choice:  # we don't need to distribute to lanes where we trust the count
+                    ) in self.cost_minimizing_choice:  # we don't need to distribute to lanes where we trust the count
                         continue
                     if N_LEG_LANES[leg] == 1:
                         self.estimated_in_lane[(leg2, light)] = self.count_in_leg[leg]
@@ -201,9 +203,8 @@ class RulebasedModel:
                         self.estimated_in_lane[(leg2, light)], 0
                     )
 
-            for leg in [l.name for l in env.legs]:
+            for leg in [l for l in self.legs.keys()]:
                 leg_id = NESW_MAP_REVERSE[leg]
-
                 self.count_in_leg[leg_id] = len(obs["vehicles"][leg])
 
                 threshold = self.max_dist_per_leg[leg_id]
@@ -262,10 +263,10 @@ class RulebasedModel:
 
             idx = np.argmax(costs)
 
-            cost_minimizing_choice = EXPLOIT_CYCLE[idx]
+            self.cost_minimizing_choice = EXPLOIT_CYCLE[idx]
             # reset our choice of new action, but
             self.new_action *= 0
-            for leg, light in cost_minimizing_choice:
+            for leg, light in self.cost_minimizing_choice:
                 self.new_action[leg, light] = 1
                 self.action[leg, light] = 1
 
