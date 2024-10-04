@@ -70,18 +70,7 @@ VALID_LANES = [
     (WEST_, ALL),
 ]
 
-
 CAR_EXIT_RATE = 6.0 / 14.0
-
-
-class LearningPhase(Enum):
-    LEG_RATE_ESTIMATION = 0
-    """turn all lights red and count incoming cars. This gives a rate for each leg."""
-    LANE_RATE_ESTIMATION = 1
-    """turn on only a single lane in each leg. Use previous lane calculation to estimate rates of specific lanes."""
-    EXPLOITATION = 2
-    """Using these estimates per lane, devise a strategy to maximize throughput."""
-
 
 LANE_RATE_ESTIMATION_CYCLE = [
     [(NORTH, STRAIGHT), (SOUTH, STRAIGHT)],
