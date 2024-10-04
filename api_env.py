@@ -2,7 +2,7 @@ from typing import Literal
 from pydantic import BaseModel
 import numpy as np
 from generate_road import LaneType, index_to_direction
-from sumo_env import TrafficColor, SignalState
+from sumo_env import TrafficColor, SignalState, RoadDirection
 from sim.dtos import VehicleDto, SignalDto, LegDto, TrafficSimulationPredictRequestDto
 
 
@@ -14,7 +14,7 @@ class RequestConverter:
         self.min_green_time = 6
         self.signal_states: dict[str, SignalState] = {}
 
-    def convert_leg_naming(leg_name: str) -> str:
+    def convert_leg_naming(self, leg_name: str) -> str:
         if leg_name == "A1":
             return "S"
         elif leg_name == "A2":
@@ -139,6 +139,9 @@ class RequestConverter:
         parsed_action = self._parse_action(action)
         self._update_traffic_lights(parsed_action)
 
+    def reset(self) -> None:
+        self.signal_states = {}
+
     def convert_request(self, request: TrafficSimulationPredictRequestDto) -> dict:
         vehicles = self.convert_vehicles(request.vehicles)
         legs = self.convert_legs(legs)
@@ -153,3 +156,48 @@ class RequestConverter:
             "signals": signals,
             "legs": legs,
         }
+
+    def convert_signal_back(self, signal: str) -> str:
+        direction = RoadDirection(signal.split("_")[0])
+        lane_type = LaneType(signal.split("_")[1])
+
+        if direction == RoadDirection.N:
+            direction_string = "A2"
+        elif direction == RoadDirection.S:
+            direction_string = "A1"
+        elif direction == RoadDirection.W:
+            direction_string = "B2"
+        elif direction == RoadDirection.E:
+            direction_string = "B1"
+
+        if lane_type == LaneType.LEFT:
+            lane_string = "LeftTurn"
+        elif lane_type == LaneType.RIGHT:
+            lane_string = "RightTurn"
+        else:
+            lane_string = ""
+
+        return f"{direction_string}{lane_string}"
+
+    def convert_color_back(self, color: TrafficColor) -> str:
+        if color == TrafficColor.RED:
+            return "red"
+        elif color == TrafficColor.AMBER:
+            return "amber"
+        elif color == TrafficColor.REDAMBER:
+            return "redamber"
+        elif color == TrafficColor.GREEN:
+            return "green"
+
+    def convert_action(self, action: np.ndarray) -> dict:
+        new_action = []
+        parsed_action = self._parse_action(action)
+        for group, color in parsed_action.items():
+            new_action.append(
+                SignalDto(
+                    name=self.convert_signal_back(group),
+                    state=self.convert_color_back(color),
+                )
+            )
+
+        return new_action

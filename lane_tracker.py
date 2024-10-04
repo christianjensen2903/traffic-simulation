@@ -33,17 +33,20 @@ class LaneTracker:
     There can maximum be 15 cars in a lane
     """
 
-    def __init__(self, env: SumoEnv, intersection_name: str):
-        self.env = env
+    def __init__(self, intersection_name: str, legs: dict[str, list[LaneType]]):
+        self.reset(intersection_name, legs)
+
+    def reset(self, intersection_name: str, legs: dict[str, list[LaneType]]):
         self.segment_thresholds = segment_threshold_lookup[intersection_name]
         self.tracked_vehicles: dict[str, list[TrackedVehicle]] = {
-            leg.name: [] for leg in env.legs
+            leg_name: [] for leg_name in legs.keys
         }
+        self.legs = legs
 
-    def get_leg(self, leg_name: str) -> InternalLeg:
-        for leg in self.env.legs:
-            if leg.name == leg_name:
-                return leg
+    def get_lanes(self, leg_name: str) -> list[LaneType]:
+        for leg_name in self.legs.keys():
+            if leg_name == leg_name:
+                return self.legs[leg_name]
 
     def add_vehicle(self, leg_name: str, vehicle: TrackedVehicle):
         self.tracked_vehicles[leg_name].vehicles.append(vehicle)
@@ -108,8 +111,8 @@ class LaneTracker:
 
     def get_initial_possible_lanes(self, leg_name: str) -> list[LaneType]:
         """Gets the possible lane types for a leg"""
-        leg = self.get_leg(leg_name)
-        return self._get_unique_lane_types(leg.lanes)
+        lanes = self.get_lanes(leg_name)
+        return self._get_unique_lane_types(lanes)
 
     def get_segment_threshold_forward(self, leg_name: str, distance: float) -> float:
         """Get the threshold for the leg and distance"""
@@ -123,33 +126,34 @@ class LaneTracker:
 
     def update_lane_info_forward(
         self,
-        leg: InternalLeg,
+        leg_name: str,
+        lanes: list[LaneType],
         distance: float,
         last_vehicle: TrackedVehicle,
         lane_index: int,
         possible_lanes: list[LaneType],
     ) -> tuple[int, list[LaneType]]:
         """Increment the lane index if necessary and update the possible lanes if reset"""
-        threshold = self.get_segment_threshold_forward(leg.name, last_vehicle.distance)
+        threshold = self.get_segment_threshold_forward(leg_name, last_vehicle.distance)
 
         # Check if it has skipped to the next segment
         if distance > threshold:
             lane_index = 0
-            possible_lanes = self.get_initial_possible_lanes(leg.name)
+            possible_lanes = self.get_initial_possible_lanes(leg_name)
             return lane_index, possible_lanes
 
         if distance > last_vehicle.distance:
             lane_index += 1
         try:
-            if lane_index >= len(leg.lanes):
-                possible_lanes = self.get_initial_possible_lanes(leg.name)
+            if lane_index >= len(lanes):
+                possible_lanes = self.get_initial_possible_lanes(leg_name)
                 lane_index = 0
             elif self.is_index_greater_than_last_occurrence(
-                leg.lanes, possible_lanes[0], lane_index
+                lanes, possible_lanes[0], lane_index
             ):
                 possible_lanes.pop(0)
         except IndexError:
-            possible_lanes = self.get_initial_possible_lanes(leg.name)
+            possible_lanes = self.get_initial_possible_lanes(leg_name)
             lane_index = 0
         return lane_index, possible_lanes
 
@@ -227,8 +231,10 @@ class LaneTracker:
 
             last_vehicle = vehicle
 
-    def forward_pass(self, leg: InternalLeg, vehicles: dict) -> list[TrackedVehicle]:
-        possible_lanes = self.get_initial_possible_lanes(leg.name)
+    def forward_pass(
+        self, leg_name: str, lanes: list[LaneType], vehicles: dict
+    ) -> list[TrackedVehicle]:
+        possible_lanes = self.get_initial_possible_lanes(leg_name)
         lane_index: int = 0
         last_vehicle: TrackedVehicle | None = None
         seen_vehicles = []
@@ -238,12 +244,15 @@ class LaneTracker:
 
             if last_vehicle:
                 lane_index, possible_lanes = self.update_lane_info_forward(
-                    leg, distance, last_vehicle, lane_index, possible_lanes
+                    leg_name, lanes, distance, last_vehicle, lane_index, possible_lanes
                 )
 
             tracked_vehicle = self.find_and_update_vehicle(
-                leg.name, distance, possible_lanes, speed
+                leg_name, distance, possible_lanes, speed
             )
+
+            if not tracked_vehicle:
+                continue
 
             # Remove lanes from the lanes we know the vehicle is not in
             # Only up to the first possible lane of the vehice
@@ -257,17 +266,17 @@ class LaneTracker:
         return seen_vehicles
 
     def update_vehicles_for_leg(
-        self, leg: InternalLeg, vehicles: list[TrackedVehicle]
+        self, leg_name: str, lanes: list[LaneType], vehicles: list[TrackedVehicle]
     ) -> list[TrackedVehicle]:
 
-        seen_vehicles = self.forward_pass(leg, vehicles)
-        self.backward_pass(seen_vehicles, leg)
-        self.tracked_vehicles[leg.name] = seen_vehicles
+        seen_vehicles = self.forward_pass(leg_name, lanes, vehicles)
+        self.backward_pass(seen_vehicles, leg_name, lanes)
+        self.tracked_vehicles[leg_name] = seen_vehicles
         return seen_vehicles
 
     def update_vehicles(self, vehicles: dict) -> dict[str, list[TrackedVehicle]]:
         for leg_name, v in vehicles.items():
-            leg = self.get_leg(leg_name)
+            leg = self.get_lanes(leg_name)
             self.update_vehicles_for_leg(leg, v)
         return self.tracked_vehicles
 

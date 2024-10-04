@@ -276,7 +276,7 @@ class TrackLanes(gym.ObservationWrapper):
         updated_vehicles = {}
 
         for leg_name, vehicles in vehicles.items():
-            leg = self.lane_tracker.get_leg(leg_name)
+            leg = self.lane_tracker.get_lanes(leg_name)
             tracked_vehicles = self.lane_tracker.update_vehicles_for_leg(leg, vehicles)
             updated_vehicles[leg_name] = [
                 {
@@ -370,7 +370,7 @@ class DiscretizeAndTrackLanes(gym.ObservationWrapper):
         roads = []
 
         for leg_name, vehicles in vehicles.items():
-            leg = self.lane_tracker.get_leg(leg_name)
+            leg = self.lane_tracker.get_lanes(leg_name)
             tracked_vehicles = self.lane_tracker.update_vehicles_for_leg(leg, vehicles)
             road = self.sort_cars(tracked_vehicles, leg.lanes)
             roads.append(road)

@@ -9,7 +9,7 @@ from generate_intersection import (
     get_lane_target_directions,
 )
 import math
-from environment import InternalLeg, Connection
+from sim.environment import InternalLeg, Connection
 from allowed_signal_calculator import generate_allowed_combinations
 from generate_random_flow import generate_random_flow
 import yaml

@@ -12,6 +12,8 @@ from sim.dtos import (
 from typing import Annotated
 import json
 from api_env import RequestConverter
+from lane_tracker import LaneTracker
+from rulebased import RulebasedModel
 
 HOST = "0.0.0.0"
 PORT = 9051
@@ -35,24 +37,26 @@ def index():
 
 converter = RequestConverter()
 
+lane_tracker = LaneTracker()
 
-def get_converter() -> RequestConverter:
-    return converter
+model = RulebasedModel()
 
 
 @app.post("/predict", response_model=TrafficSimulationPredictResponseDto)
 def predict_endpoint(
     request: TrafficSimulationPredictRequestDto,
-    # converter: Annotated[RequestConverter, Depends(get_converter)],
 ):
 
     obs = converter.convert_vehicles(request.vehicles)
-    # print(obs)/
-    if request.simulation_ticks < 20:
-        print(request.simulation_ticks)
+    if request.simulation_ticks == 1:
+        converter.reset()
+        lane_tracker.reset("intersection_2", obs["legs"])
+        model.reset(lane_tracker, obs["legs"])
 
-    # Return the encoded image to the validation/evalution service
-    response = TrafficSimulationPredictResponseDto(signals=[])
+    lane_tracker.update_vehicles(obs["vehicles"])
+    action = model.get_action(obs)
+    signals = converter.convert_signals(action)
+    response = TrafficSimulationPredictResponseDto(signals=signals)
 
     return response
 
