@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+rom pydantic import BaseModel
 from generate_road import LaneType, RoadDirection, RoadType
 from sumo_env import SumoEnv, InternalLeg
 
@@ -39,7 +39,7 @@ class LaneTracker:
     def reset(self, intersection_name: str, legs: dict[str, list[LaneType]]):
         self.segment_thresholds = segment_threshold_lookup[intersection_name]
         self.tracked_vehicles: dict[str, list[TrackedVehicle]] = {
-            leg_name: [] for leg_name in legs.keys
+            leg_name: [] for leg_name in legs.keys()
         }
         self.legs = legs
 
