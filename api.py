@@ -13,6 +13,7 @@ from typing import Annotated
 import json
 from api_env import RequestConverter
 from lane_tracker import LaneTracker
+from generate_road import LaneType
 from rulebased import RulebasedModel
 
 HOST = "0.0.0.0"
@@ -37,9 +38,22 @@ def index():
 
 converter = RequestConverter()
 
-lane_tracker = LaneTracker()
+initial_legs = {
+    "N": [LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    "S": [LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    "W": [
+        LaneType.STRAIGHT,
+        LaneType.STRAIGHT,
+        LaneType.LEFT,
+        LaneType.LEFT,
+        LaneType.LEFT,
+    ],
+    "E": [LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+}
 
-model = RulebasedModel()
+lane_tracker = LaneTracker(intersection_name="intersection_1", legs=initial_legs)
+
+model = RulebasedModel(lane_tracker, initial_legs)
 
 
 @app.post("/predict", response_model=TrafficSimulationPredictResponseDto)
