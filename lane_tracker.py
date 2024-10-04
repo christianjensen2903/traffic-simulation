@@ -58,7 +58,7 @@ class LaneTracker:
         distance: float,
         possible_lanes: list[LaneType],
         speed: float,
-    ) -> TrackedVehicle | None:
+    ):# -> TrackedVehicle | None:
         """Finds the vehicles in the leg and updates the vehicle if found"""
         for vehicle in self.tracked_vehicles[leg_name]:
             old_distance = distance + speed
@@ -72,10 +72,14 @@ class LaneTracker:
                         if speed < 0.5:
                             vehicle.waiting_time += 1
                         return vehicle
-
-        tracked_vehicle = TrackedVehicle(
-            distance=distance, speed=speed, possible_lanes=possible_lanes
-        )
+        
+        try:
+            tracked_vehicle = TrackedVehicle(
+                distance=distance, speed=speed, possible_lanes=[lane.value for lane in possible_lanes]
+            )
+        except Exception as e:
+            print(possible_lanes)
+            raise e
         return tracked_vehicle  # No vehicle found
 
     def _get_unique_lane_types(self, lanes: list[LaneType]) -> list[LaneType]:
@@ -240,8 +244,13 @@ class LaneTracker:
         last_vehicle: TrackedVehicle | None = None
         seen_vehicles = []
         for vehicle in vehicles:
-            print(vehicle)
-            distance = vehicle["distance_to_stop"]
+            
+            try:
+                distance = vehicle["distance"]
+            except:
+                distance = vehicle["distance_to_stop"]
+            
+            
             speed = vehicle["speed"]
 
             if last_vehicle:

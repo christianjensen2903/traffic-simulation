@@ -8,11 +8,12 @@ from sim.dtos import VehicleDto, SignalDto, LegDto, TrafficSimulationPredictRequ
 
 class RequestConverter:
 
-    def __init__(self):
+    def __init__(self, legs: dict[str, list[LaneType]]):
         self.amber_time = 4
         self.red_amber_time = 2
         self.min_green_time = 6
         self.signal_states: dict[str, SignalState] = {}
+        self.legs = legs
 
     def convert_leg_naming(self, leg_name: str) -> str:
         if leg_name == "A1":
@@ -25,7 +26,7 @@ class RequestConverter:
             return "E"
 
     def convert_vehicles(self, vehicles: list[VehicleDto]) -> dict[str, list[dict]]:
-        converted_vehicles: dict[str, list[dict]] = {}
+        converted_vehicles: dict[str, list[dict]] = {n: [] for n in ["N", "S", "W", "E"]}
         for vehicle in vehicles:
             leg_name = self.convert_leg_naming(vehicle.leg)
             if leg_name not in converted_vehicles:
@@ -50,7 +51,8 @@ class RequestConverter:
     def initialize_signals(self, legs: dict[str, list[LaneType]]) -> None:
         for leg_name, lanes in legs.items():
             for lane in lanes:
-                group_name = f"{leg_name}_1_{lane}"
+                name = self.convert_leg_naming(leg_name)
+                group_name = f"{name}_1_{lane}"
                 self.signal_states[group_name] = SignalState()
 
     def convert_legs(self, leg: LegDto) -> dict[str, list[LaneType]]:
@@ -124,23 +126,32 @@ class RequestConverter:
     ) -> dict[str, Literal[TrafficColor.GREEN, TrafficColor.RED]]:
         """Parse the action into a dictionary"""
         action_dict = {}
+
+        action = action.reshape((4,6))
+        action = action.flatten()
+
+
         for i, a in enumerate(action):
 
             direction_index = i // len(LaneType)
             lane_index = i % len(LaneType)
             direction = index_to_direction(direction_index)
             lane_type = list(LaneType)[lane_index]
+            if lane_type not in self.legs[direction.value]:
+                continue
             group = f"{direction.value}_{lane_type.value}"
             action_dict[group] = TrafficColor.GREEN if a else TrafficColor.RED
 
+        # print(action_dict)
         return action_dict
 
-    def update_signals(self, action: np.ndarray) -> None:
-        parsed_action = self._parse_action(action)
-        self._update_traffic_lights(parsed_action)
+    #def update_signals(self, action: np.ndarray) -> None:
+    #    parsed_action = self._parse_action(action)
+    #    self._update_traffic_lights(parsed_action)
 
-    def reset(self) -> None:
+    def reset(self, legs: dict[str, list[LaneType]]) -> None:
         self.signal_states = {}
+        self.legs = legs
 
     def convert_request(self, request: TrafficSimulationPredictRequestDto) -> dict:
         vehicles = self.convert_vehicles(request.vehicles)
@@ -149,11 +160,11 @@ class RequestConverter:
         if self.signal_states == {}:
             self.initialize_signals(legs)
 
-        signals = self.convert_signals(request.signals)
+        #signals = self.convert_signals(request.signals)
 
         return {
             "vehicles": vehicles,
-            "signals": signals,
+            #"signals": signals,
             "legs": legs,
         }
 

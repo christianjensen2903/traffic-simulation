@@ -46,7 +46,7 @@ def generate_random_flow(path: str, roads: list[Road]) -> None:
     rou_xml += """
     </routes>"""
 
-    with open(f"{path}/intersection.rou.xml", "w") as f:
+    with open(f"sim/{path}/intersection.rou.xml", "w") as f:
         f.write(rou_xml)
 
 

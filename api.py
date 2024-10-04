@@ -36,7 +36,7 @@ def index():
     return "Your endpoint is running!"
 
 
-converter = RequestConverter()
+
 
 initial_legs = {
     "N": [LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
@@ -51,27 +51,36 @@ initial_legs = {
     "E": [LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
 }
 
+second_legs = {
+    "N": [LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    "S": [LaneType.RIGHT, LaneType.STRAIGHT, LaneType.LEFT],
+    "W": [LaneType.ALL],
+    "E": [LaneType.RIGHT, LaneType.STRAIGHT_LEFT],
+}
+
+converter = RequestConverter(initial_legs)
+
 lane_tracker = LaneTracker(intersection_name="intersection_1", legs=initial_legs)
 
 model = RulebasedModel(lane_tracker, initial_legs)
 
-
+is_first = True
 @app.post("/predict", response_model=TrafficSimulationPredictResponseDto)
 def predict_endpoint(
     request: TrafficSimulationPredictRequestDto,
 ):
 
     obs = converter.convert_request(request)
-    print(obs)
     if request.simulation_ticks == 1:
-        converter.reset()
-        lane_tracker.reset("intersection_2", obs["legs"])
-        model.reset(lane_tracker, obs["legs"])
+        converter.reset(second_legs)
+        lane_tracker.reset("intersection_2", second_legs)
+        model.reset(lane_tracker, second_legs)
 
     lane_tracker.update_vehicles(obs["vehicles"])
     action = model.get_action(obs)
-    signals = converter.convert_signals(action)
+    signals = converter.convert_action(action)
     response = TrafficSimulationPredictResponseDto(signals=signals)
+    print(response)
 
     return response
 

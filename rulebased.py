@@ -17,17 +17,17 @@ WEST_ = 3
 LEGS = [NORTH, EAST_, SOUTH, WEST_]
 
 NESW_MAP = {
-    NORTH: "N_1",
-    EAST_: "E_1",
-    SOUTH: "S_1",
-    WEST_: "W_1",
+    NORTH: "N",
+    EAST_: "E",
+    SOUTH: "S",
+    WEST_: "W",
 }
 
 NESW_MAP_REVERSE = {
-    "N_1": NORTH,
-    "E_1": EAST_,
-    "S_1": SOUTH,
-    "W_1": WEST_,
+    "N": NORTH,
+    "E": EAST_,
+    "S": SOUTH,
+    "W": WEST_,
 }
 
 
@@ -205,14 +205,17 @@ class RulebasedModel:
 
             for leg in [l for l in self.legs.keys()]:
                 leg_id = NESW_MAP_REVERSE[leg]
-                self.count_in_leg[leg_id] = len(obs["vehicles"][leg])
+                try:
+                    self.count_in_leg[leg_id] = len(obs["vehicles"][leg])
+                except KeyError:
+                    self.count_in_leg[leg_id] = 0
 
                 threshold = self.max_dist_per_leg[leg_id]
                 entered = 0
                 highest_dist = 0
                 set_highest = False
                 for v in obs["vehicles"][leg]:
-                    dist = v["distance"]
+                    dist = v["distance_to_stop"]
                     speed = v["speed"]
                     last_pos = dist + speed
                     if last_pos > threshold:
@@ -233,7 +236,7 @@ class RulebasedModel:
 
                 cost_increment = 0
                 for leg, light in combination:
-                    vehicles = tracker.tracked_vehicles[NESW_MAP[leg]]
+                    vehicles = self.tracker.tracked_vehicles[NESW_MAP[leg]]
                     lane_type = int_to_lanetype[light]
                     cars_controlled_by_light = [
                         (v, 1.0 / len(v.possible_lanes))
@@ -277,6 +280,8 @@ class RulebasedModel:
 
         self.time += 1
 
+        self.action *= 0
+        self.action[NORTH, STRAIGHT] = 1
         return self.action.flatten()
 
 
