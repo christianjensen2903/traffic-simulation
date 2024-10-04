@@ -1,4 +1,4 @@
-rom pydantic import BaseModel
+from pydantic import BaseModel
 from generate_road import LaneType, RoadDirection, RoadType
 from sumo_env import SumoEnv, InternalLeg
 

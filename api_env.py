@@ -144,12 +144,12 @@ class RequestConverter:
 
     def convert_request(self, request: TrafficSimulationPredictRequestDto) -> dict:
         vehicles = self.convert_vehicles(request.vehicles)
-        legs = self.convert_legs(legs)
+        legs = self.convert_legs(request.legs)
 
         if self.signal_states == {}:
-            self.initialize_signals(legs)
+            self.initialize_signals(request.legs)
 
-        signals = self.convert_signals(signals)
+        signals = self.convert_signals(request.signals)
 
         return {
             "vehicles": vehicles,

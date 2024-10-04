@@ -61,7 +61,8 @@ def predict_endpoint(
     request: TrafficSimulationPredictRequestDto,
 ):
 
-    obs = converter.convert_vehicles(request.vehicles)
+    obs = converter.convert_request(request)
+    print(obs)
     if request.simulation_ticks == 1:
         converter.reset()
         lane_tracker.reset("intersection_2", obs["legs"])
