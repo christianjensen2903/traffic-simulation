@@ -81,14 +81,14 @@
         <lane id=":intersection_11_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="11.29" length="29.28" shape="-15.00,-3.40 -8.13,-1.77 -1.67,2.47 3.12,8.38 5.00,15.00"/>
     </edge>
 
-    <edge id="E_1" from="E_0" to="intersection" name="E_1" priority="11" type="highway.primary" spreadType="center" shape="-165.00,-5.00 -15.00,-5.00">
+    <edge id="E" from="E_0" to="intersection" name="E" priority="11" type="highway.primary" spreadType="center" shape="-165.00,-5.00 -15.00,-5.00">
         <lane id="E_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="-165.00,-6.60 -15.00,-6.60"/>
         <lane id="E_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="-165.00,-3.40 -15.00,-3.40"/>
     </edge>
     <edge id="E_2" from="intersection" to="E_3" name="E_2" priority="11" type="highway.tertiary" spreadType="center" shape="15.00,-5.00 165.00,-5.00">
         <lane id="E_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="22.22" length="150.00" shape="15.00,-5.00 165.00,-5.00"/>
     </edge>
-    <edge id="N_1" from="N_0" to="intersection" name="N_1" priority="11" type="highway.primary" spreadType="center" shape="5.00,-165.00 5.00,-15.00">
+    <edge id="N" from="N_0" to="intersection" name="N" priority="11" type="highway.primary" spreadType="center" shape="5.00,-165.00 5.00,-15.00">
         <lane id="N_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="8.20,-165.00 8.20,-15.00"/>
         <lane id="N_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="5.00,-165.00 5.00,-15.00"/>
         <lane id="N_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="1.80,-165.00 1.80,-15.00"/>
@@ -96,7 +96,7 @@
     <edge id="N_2" from="intersection" to="N_3" name="N_2" priority="11" type="highway.primary" spreadType="center" shape="5.00,15.00 5.00,165.00">
         <lane id="N_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="5.00,15.00 5.00,165.00"/>
     </edge>
-    <edge id="S_1" from="S_0" to="intersection" name="S_1" priority="11" type="highway.primary" spreadType="center" shape="-5.00,165.00 -5.00,15.00">
+    <edge id="S" from="S_0" to="intersection" name="S" priority="11" type="highway.primary" spreadType="center" shape="-5.00,165.00 -5.00,15.00">
         <lane id="S_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="-8.20,165.00 -8.20,15.00"/>
         <lane id="S_1_1" index="1" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="-5.00,165.00 -5.00,15.00"/>
         <lane id="S_1_2" index="2" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="-1.80,165.00 -1.80,15.00"/>
@@ -104,7 +104,7 @@
     <edge id="S_2" from="intersection" to="S_3" name="S_2" priority="11" type="highway.primary" spreadType="center" shape="-5.00,-15.00 -5.00,-165.00">
         <lane id="S_2_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="27.78" length="150.00" shape="-5.00,-15.00 -5.00,-165.00"/>
     </edge>
-    <edge id="W_1" from="W_0" to="intersection" name="W_1" priority="11" type="highway.tertiary" spreadType="center" shape="165.00,5.00 15.00,5.00">
+    <edge id="W" from="W_0" to="intersection" name="W" priority="11" type="highway.tertiary" spreadType="center" shape="165.00,5.00 15.00,5.00">
         <lane id="W_1_0" index="0" disallow="tram rail_urban rail rail_electric rail_fast ship cable_car subway" speed="22.22" length="150.00" shape="165.00,5.00 15.00,5.00"/>
     </edge>
     <edge id="W_2" from="intersection" to="W_3" name="W_2" priority="11" type="highway.primary" spreadType="center" shape="-15.00,5.00 -165.00,5.00">
@@ -151,18 +151,18 @@
 
     <junction id=":intersection_12_0" type="internal" x="-2.32" y="-0.16" incLanes=":intersection_8_0 S_1_0 S_1_1" intLanes=":intersection_0_0 :intersection_1_0 :intersection_4_0 :intersection_5_0 :intersection_10_0 :intersection_11_0"/>
 
-    <connection from="E_1" to="S_2" fromLane="0" toLane="0" via=":intersection_9_0" tl="intersection" linkIndex="6" dir="r" state="o"/>
-    <connection from="E_1" to="E_2" fromLane="1" toLane="0" via=":intersection_10_0" tl="intersection" linkIndex="7" dir="s" state="o"/>
-    <connection from="E_1" to="N_2" fromLane="1" toLane="0" via=":intersection_11_0" tl="intersection" linkIndex="7" dir="l" state="o"/>
-    <connection from="N_1" to="E_2" fromLane="0" toLane="0" via=":intersection_6_0" tl="intersection" linkIndex="0" dir="r" state="O"/>
-    <connection from="N_1" to="N_2" fromLane="1" toLane="0" via=":intersection_7_0" tl="intersection" linkIndex="1" dir="s" state="O"/>
-    <connection from="N_1" to="W_2" fromLane="2" toLane="0" via=":intersection_8_0" tl="intersection" linkIndex="2" dir="l" state="o"/>
-    <connection from="S_1" to="W_2" fromLane="0" toLane="0" via=":intersection_0_0" tl="intersection" linkIndex="3" dir="r" state="O"/>
-    <connection from="S_1" to="S_2" fromLane="1" toLane="0" via=":intersection_1_0" tl="intersection" linkIndex="4" dir="s" state="O"/>
-    <connection from="S_1" to="E_2" fromLane="2" toLane="0" via=":intersection_2_0" tl="intersection" linkIndex="5" dir="l" state="o"/>
-    <connection from="W_1" to="N_2" fromLane="0" toLane="0" via=":intersection_3_0" tl="intersection" linkIndex="8" dir="r" state="o"/>
-    <connection from="W_1" to="W_2" fromLane="0" toLane="0" via=":intersection_4_0" tl="intersection" linkIndex="8" dir="s" state="o"/>
-    <connection from="W_1" to="S_2" fromLane="0" toLane="0" via=":intersection_5_0" tl="intersection" linkIndex="8" dir="l" state="o"/>
+    <connection from="E" to="S_2" fromLane="0" toLane="0" via=":intersection_9_0" tl="intersection" linkIndex="6" dir="r" state="o"/>
+    <connection from="E" to="E_2" fromLane="1" toLane="0" via=":intersection_10_0" tl="intersection" linkIndex="7" dir="s" state="o"/>
+    <connection from="E" to="N_2" fromLane="1" toLane="0" via=":intersection_11_0" tl="intersection" linkIndex="7" dir="l" state="o"/>
+    <connection from="N" to="E_2" fromLane="0" toLane="0" via=":intersection_6_0" tl="intersection" linkIndex="0" dir="r" state="O"/>
+    <connection from="N" to="N_2" fromLane="1" toLane="0" via=":intersection_7_0" tl="intersection" linkIndex="1" dir="s" state="O"/>
+    <connection from="N" to="W_2" fromLane="2" toLane="0" via=":intersection_8_0" tl="intersection" linkIndex="2" dir="l" state="o"/>
+    <connection from="S" to="W_2" fromLane="0" toLane="0" via=":intersection_0_0" tl="intersection" linkIndex="3" dir="r" state="O"/>
+    <connection from="S" to="S_2" fromLane="1" toLane="0" via=":intersection_1_0" tl="intersection" linkIndex="4" dir="s" state="O"/>
+    <connection from="S" to="E_2" fromLane="2" toLane="0" via=":intersection_2_0" tl="intersection" linkIndex="5" dir="l" state="o"/>
+    <connection from="W" to="N_2" fromLane="0" toLane="0" via=":intersection_3_0" tl="intersection" linkIndex="8" dir="r" state="o"/>
+    <connection from="W" to="W_2" fromLane="0" toLane="0" via=":intersection_4_0" tl="intersection" linkIndex="8" dir="s" state="o"/>
+    <connection from="W" to="S_2" fromLane="0" toLane="0" via=":intersection_5_0" tl="intersection" linkIndex="8" dir="l" state="o"/>
 
     <connection from=":intersection_0" to="W_2" fromLane="0" toLane="0" dir="r" state="M"/>
     <connection from=":intersection_1" to="S_2" fromLane="0" toLane="0" dir="s" state="M"/>

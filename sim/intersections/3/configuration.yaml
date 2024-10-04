@@ -108,9 +108,9 @@ intersections:
     - STRAIGHT
     - STRAIGHT
     - LEFT
-    name: N_1
+    name: N
     segments:
-    - N_1
+    - N
   - groups:
     - S_LEFT
     - S_STRAIGHT
@@ -118,9 +118,9 @@ intersections:
     - STRAIGHT
     - STRAIGHT
     - LEFT
-    name: S_1
+    name: S
     segments:
-    - S_1
+    - S
   - groups:
     - E_LEFT
     - E_STRAIGHT
@@ -128,9 +128,9 @@ intersections:
     - STRAIGHT
     - STRAIGHT
     - LEFT
-    name: E_1
+    name: E
     segments:
-    - E_1
+    - E
   - groups:
     - W_LEFT
     - W_STRAIGHT
@@ -140,7 +140,7 @@ intersections:
     - LEFT
     - LEFT
     - LEFT
-    name: W_1
+    name: W
     segments:
-    - W_1
+    - W
   red_amber_time: 0

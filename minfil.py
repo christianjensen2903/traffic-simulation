@@ -172,7 +172,7 @@ def env_step_generator(env):
                 estimated_in_lane[(leg, light)] = max(old_guess - 6.0 / 14.0, 0)
 
             for leg in [l.name for l in env.legs]:
-                count_in_leg[leg[0]] = len(obs["vehicles"][leg])
+                count_in_leg[leg] = len(obs["vehicles"][leg])
 
             # now, the estimated_in_lane counts must sum to the amount in the entire leg
             # distribute the difference onto all other
@@ -199,10 +199,8 @@ def env_step_generator(env):
                     )
 
             for leg in [l.name for l in env.legs]:
-                try:
-                    leg_id = NESW_MAP_REVERSE[leg]
-                except:
-                    leg_id = NESW_MAP_REVERSE[leg[0]]
+
+                leg_id = NESW_MAP_REVERSE[leg]
 
                 count_in_leg[leg_id] = len(obs["vehicles"][leg])
 
@@ -289,9 +287,7 @@ def env_step_generator(env):
         # print(signals)
 
         obs, reward, done, _, _ = env.step(action.flatten())
-        # print(obs["vehicles"])
-        vehicles = {"N_1" : obs["vehicles"]["N_1"], "S_1" : obs["vehicles"]["S_1"], "E_1" : obs["vehicles"]["E_1"], "W_1" : obs["vehicles"]["W_1"]}
-        tracker.update_vehicles(vehicles)
+        tracker.update_vehicles(obs["vehicles"])
         time += 1
         yield obs, reward, done
 
