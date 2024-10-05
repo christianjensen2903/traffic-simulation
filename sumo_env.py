@@ -60,7 +60,7 @@ class SumoEnv(gym.Env):
         super(SumoEnv, self).__init__()
         self.max_simulation_time = max_simulation_time
         self.intersection_path = intersection_path
-        self.load_config(f"{intersection_path}/3")
+        self.load_config(f"{intersection_path}/1")
         self.visualize = False
 
         # Max 4 incoming roads. Has to be flattened
@@ -344,7 +344,7 @@ class SumoEnv(gym.Env):
     def reset(self, seed=None, options=None):
         if self.random_state:
             # choice = random.choice([3, 4])  # Either of the two val intersections
-            choice = 3
+            choice = 1
             path = f"intersections/{choice}"
             generate_random_flow(self.intersection_path, roads=self.roads)
         else:
@@ -398,7 +398,7 @@ class SumoEnv(gym.Env):
 if __name__ == "__main__":
     env = SumoEnv(intersection_path="intersections")
     env.random_state = False
-    env.visualize = False
+    env.visualize = True
     env.reset()
     done = False
     while not done:
@@ -408,6 +408,6 @@ if __name__ == "__main__":
         # print([v["distance"] for v in obs["vehicles"]["S"]])
         print(reward)
         # press any key to continue
-        # input()
+        input()
         print(f"Reward: {reward}")
     env.close()

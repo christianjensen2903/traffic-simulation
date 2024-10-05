@@ -158,7 +158,7 @@ class LaneTracker:
             lane_index = 0
             possible_lanes = self.get_initial_possible_lanes(leg_name)
             return lane_index, possible_lanes
-
+        
         if distance > last_vehicle.distance:
             lane_index += 1
         try:

@@ -262,10 +262,6 @@ def env_step_generator(env):
                 costs.append(cost_increment)
 
             idx = np.argmax(costs)
-            # print("hej", idx, costs)
-            # print(cost_minimizing_choice)
-            # print(estimated_in_lane)
-            # print(count_in_leg)
 
             cost_minimizing_choice = EXPLOIT_CYCLE[idx]
             # reset our choice of new action, but
@@ -279,14 +275,9 @@ def env_step_generator(env):
             action *= 0
             action = new_action.copy()
 
-        # action = np.ones((4, 6))
-        # action[NORTH, STRAIGHT] = 1
-        # import api_env
-
-        # signals = api_env.converter.convert_action(action)
-        # print(signals)
 
         obs, reward, done, _, _ = env.step(action.flatten())
+        
         tracker.update_vehicles(obs["vehicles"])
         time += 1
         yield obs, reward, done
@@ -300,7 +291,7 @@ initial_legs = {
         LaneType.STRAIGHT,
         LaneType.LEFT,
         LaneType.LEFT,
-        LaneType.LEFT,
+        LaneType.LEFT
     ],
     "E": [LaneType.STRAIGHT, LaneType.STRAIGHT, LaneType.LEFT],
 }
@@ -312,15 +303,15 @@ if __name__ == "__main__":
     env.visualize = True
     env.reset()
     tracker = lane_tracker.LaneTracker(
-        intersection_name="intersection_3", legs=initial_legs
+        intersection_name="intersection_1", legs=initial_legs
     )
 
     step_gen = env_step_generator(env)
     loss = 0
     while True:
+        input()
         obs, reward, done = next(step_gen)
         loss += reward
-        # timelib.sleep(0.3)
         if done:
             break
 
